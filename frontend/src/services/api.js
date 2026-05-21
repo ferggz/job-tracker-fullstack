@@ -1,4 +1,4 @@
-const API_URL = "http://127.0.0.1:8000/applications"
+const API_URL = "https://job-tracker-fullstack-z6cy.onrender.com/applications"
 
 
 export async function getApplications() {
