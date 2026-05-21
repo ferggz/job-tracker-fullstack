@@ -32,6 +32,7 @@ class ApplicationCreate(BaseModel):
     company: str
     position: str
     status: str
+    date_applied: str
 
 
 @app.get("/")
@@ -58,12 +59,17 @@ def create_application(application: ApplicationCreate):
 
     cursor = connection.execute(
         """
-        INSERT INTO applications (company, position, status)
-        VALUES (?, ?, ?)
+        INSERT INTO applications (company, position, status, date_applied)
+        VALUES (?, ?, ?, ?)
         """,
-        (application.company, application.position, application.status)
+        (
+            application.company,
+            application.position,
+            application.status,
+            application.date_applied
+        )
     )
-
+    
     connection.commit()
 
     new_application = connection.execute(
@@ -83,13 +89,14 @@ def update_application(application_id: int, updated_application: ApplicationCrea
     connection.execute(
         """
         UPDATE applications
-        SET company = ?, position = ?, status = ?
+        SET company = ?, position = ?, status = ?, date_applied = ?
         WHERE id = ?
         """,
         (
             updated_application.company,
             updated_application.position,
             updated_application.status,
+            updated_application.date_applied,
             application_id
         )
     )
