@@ -8,6 +8,7 @@ import {
   updateApplication,
   deleteApplication
 } from "./services/api"
+import "./App.css"
 
 function App() {
   const [applications, setApplications] = useState([])
@@ -70,8 +71,11 @@ function handleEdit(application) {
 }
 
   return (
-    <div>
-      <h1>Job Tracker</h1>
+    <main className="app">
+      <section className="hero">
+        <h1>Job Tracker</h1>
+        <p>Track your job applications from one simple dashboard.</p>
+      </section>
 
       <ApplicationForm
         company={company}
@@ -89,7 +93,7 @@ function handleEdit(application) {
         handleEdit={handleEdit}
         handleDelete={handleDelete}
       />
-    </div>
+    </main>
   )
 }
 

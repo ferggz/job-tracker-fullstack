@@ -9,12 +9,13 @@ function ApplicationForm({
   editingId
 }) {
   return (
-    <form onSubmit={handleSubmit}>
+    <form className="application-form" onSubmit={handleSubmit}>
       <input
         type="text"
         placeholder="Company"
         value={company}
         onChange={event => setCompany(event.target.value)}
+        required
       />
 
       <input
@@ -22,6 +23,7 @@ function ApplicationForm({
         placeholder="Position"
         value={position}
         onChange={event => setPosition(event.target.value)}
+        required
       />
 
       <select

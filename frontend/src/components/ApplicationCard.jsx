@@ -1,19 +1,23 @@
 function ApplicationCard({ application, handleEdit, handleDelete }) {
   return (
-    <div>
+    <div className="application-card">
       <h2>{application.company}</h2>
 
       <p>{application.position}</p>
 
-      <p>{application.status}</p>
+      <span className={`status-badge ${application.status.toLowerCase()}`}>
+        {application.status}
+        </span>
 
-      <button onClick={() => handleEdit(application)}>
-        Edit
-      </button>
+      <div className="card-buttons">
+        <button onClick={() => handleEdit(application)}>
+          Edit
+        </button>
 
-      <button onClick={() => handleDelete(application.id)}>
-        Delete
-      </button>
+        <button onClick={() => handleDelete(application.id)}>
+          Delete
+        </button>
+      </div>
     </div>
   )
 }
