@@ -56,6 +56,15 @@ function App() {
   }
 
   async function handleDelete(id) {
+
+    const confirmed = window.confirm(
+      "Are you sure you want to delete this application?"
+    )
+
+    if (!confirmed) {
+      return
+    }
+
     await deleteApplication(id)
 
     setApplications(
