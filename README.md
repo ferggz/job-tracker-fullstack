@@ -4,6 +4,23 @@ A fullstack job application tracker built with React, FastAPI and SQLite.
 
 The application allows users to create, manage, filter and organize job applications through a modern frontend connected to a REST API backend.
 
+## Live Demo
+
+Frontend:
+```text
+https://job-tracker-fullstack-three.vercel.app
+```
+
+Backend API:
+```text
+https://job-tracker-fullstack-z6cy.onrender.com
+```
+
+Swagger Documentation:
+```text
+https://job-tracker-fullstack-z6cy.onrender.com/docs
+```
+
 ## What I Learned
 
 Through this project I practiced:
