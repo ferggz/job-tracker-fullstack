@@ -183,18 +183,12 @@ DELETE /applications/{id}
 
 ### Dashboard
 
-```markdown
 ![Dashboard](screenshots/dashboard.png)
-```
 
 ### Filters and Search
 
-```markdown
 ![Filters](screenshots/filters.png)
-```
 
 ### Edit Application
 
-```markdown
 ![Edit Application](screenshots/edit.png)
-```
