@@ -13,20 +13,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-applications = [
-    {
-        "id": 1,
-        "company": "Google",
-        "position": "Backend Developer",
-        "status": "Applied"
-    },
-    {
-        "id": 2,
-        "company": "Spotify",
-        "position": "Python Developer",
-        "status": "Interview"
-    }
-]
 
 class ApplicationCreate(BaseModel):
     company: str
@@ -69,7 +55,6 @@ def create_application(application: ApplicationCreate):
             application.date_applied
         )
     )
-    
     connection.commit()
 
     new_application = connection.execute(
@@ -83,7 +68,10 @@ def create_application(application: ApplicationCreate):
 
 
 @app.put("/applications/{application_id}")
-def update_application(application_id: int, updated_application: ApplicationCreate):
+def update_application(
+    application_id: int,
+    updated_application: ApplicationCreate
+):
     connection = get_connection()
 
     connection.execute(
@@ -100,7 +88,6 @@ def update_application(application_id: int, updated_application: ApplicationCrea
             application_id
         )
     )
-
     connection.commit()
 
     application = connection.execute(
@@ -121,7 +108,6 @@ def delete_application(application_id: int):
         "DELETE FROM applications WHERE id = ?",
         (application_id,)
     )
-
     connection.commit()
     connection.close()
 

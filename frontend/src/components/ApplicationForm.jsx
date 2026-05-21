@@ -5,6 +5,8 @@ function ApplicationForm({
   setPosition,
   status,
   setStatus,
+  dateApplied,
+  setDateApplied,
   handleSubmit,
   editingId,
   handleCancelEdit
@@ -25,6 +27,13 @@ function ApplicationForm({
         value={position}
         onChange={event => setPosition(event.target.value)}
         required
+      />
+
+      <input
+        type="date"
+        value={dateApplied}
+        onChange={event => setDateApplied(event.target.value)}
+        max={new Date().toISOString().split("T")[0]}
       />
 
       <select

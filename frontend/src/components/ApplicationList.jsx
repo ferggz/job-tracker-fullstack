@@ -5,8 +5,8 @@ function ApplicationList({ applications, handleEdit, handleDelete }) {
 if (applications.length === 0) {
   return (
     <div className="empty-state">
-      <h2>No applications yet</h2>
-      <p>Add your first job application to get started.</p>
+      <h2>No applications found</h2>
+      <p>Try changing your filters or add a new application.</p>
     </div>
   )
 }

@@ -16,12 +16,24 @@ function App() {
   const [position, setPosition] = useState("")
   const [status, setStatus] = useState("Applied")
   const [editingId, setEditingId] = useState(null)
-  const [filterStatus, setFilterStatus] = useState("All")
+  const [filterStatus, setFilterStatus] = useState(
+      localStorage.getItem("filterStatus") || "All"
+    )
+
+  const [sortBy, setSortBy] = useState(
+      localStorage.getItem("sortBy") || "recent"
+    )
   const [searchTerm, setSearchTerm] = useState("")
+  const [dateApplied, setDateApplied] = useState("")
 
   useEffect(() => {
     fetchApplications()
   }, [])
+
+  useEffect(() => {
+  localStorage.setItem("filterStatus", filterStatus)
+  localStorage.setItem("sortBy", sortBy)
+}, [filterStatus, sortBy])
 
   async function fetchApplications() {
     const data = await getApplications()
@@ -34,7 +46,8 @@ function App() {
     const application = {
       company,
       position,
-      status
+      status,
+      date_applied: dateApplied
     }
 
     if (editingId) {
@@ -55,6 +68,7 @@ function App() {
     setCompany("")
     setPosition("")
     setStatus("Applied")
+    setDateApplied("")
   }
 
   async function handleDelete(id) {
@@ -79,6 +93,7 @@ function handleEdit(application) {
   setCompany(application.company)
   setPosition(application.position)
   setStatus(application.status)
+  setDateApplied(application.date_applied)
 }
 
 const statusOrder = {
@@ -99,9 +114,26 @@ const filteredApplications = applications.filter(application => {
   return matchesStatus && matchesSearch
 })
 
-const sortedApplications = [...filteredApplications].sort(
-  (a, b) => statusOrder[a.status] - statusOrder[b.status]
-)
+const sortedApplications = [...filteredApplications].sort((a, b) => {
+
+  if (sortBy === "recent") {
+    return new Date(b.date_applied) - new Date(a.date_applied)
+  }
+
+  if (sortBy === "oldest") {
+    return new Date(a.date_applied) - new Date(b.date_applied)
+  }
+
+  if (sortBy === "company") {
+    return a.company.localeCompare(b.company)
+  }
+
+  if (sortBy === "status") {
+    return statusOrder[a.status] - statusOrder[b.status]
+  }
+
+  return 0
+})
 
 const totalApplications = applications.length
 const interviews = applications.filter(
@@ -143,24 +175,34 @@ function handleCancelEdit() {
       </section>
 
       <section className="filters">
-        <input
-          type="text"
-          placeholder="Search by company or position"
-          value={searchTerm}
-          onChange={event => setSearchTerm(event.target.value)}
-        />
+      <input
+        type="text"
+        placeholder="Search by company or position"
+        value={searchTerm}
+        onChange={event => setSearchTerm(event.target.value)}
+      />
 
-        <select
-          value={filterStatus}
-          onChange={event => setFilterStatus(event.target.value)}
-        >
-          <option value="All">All statuses</option>
-          <option value="Offer">Offer</option>
-          <option value="Interview">Interview</option>
-          <option value="Applied">Applied</option>
-          <option value="Rejected">Rejected</option>
-        </select>
-      </section>
+      <select
+        value={filterStatus}
+        onChange={event => setFilterStatus(event.target.value)}
+      >
+        <option value="All">All statuses</option>
+        <option value="Offer">Offer</option>
+        <option value="Interview">Interview</option>
+        <option value="Applied">Applied</option>
+        <option value="Rejected">Rejected</option>
+      </select>
+
+      <select
+        value={sortBy}
+        onChange={event => setSortBy(event.target.value)}
+      >
+        <option value="recent">Most recent</option>
+        <option value="oldest">Oldest</option>
+        <option value="company">Company A-Z</option>
+        <option value="status">Status</option>
+      </select>
+    </section>
 
       <p className="results-count">
         Showing {sortedApplications.length} of {applications.length} applications
@@ -173,6 +215,8 @@ function handleCancelEdit() {
         setPosition={setPosition}
         status={status}
         setStatus={setStatus}
+        dateApplied={dateApplied}
+        setDateApplied={setDateApplied}
         handleSubmit={handleSubmit}
         editingId={editingId}
         handleCancelEdit={handleCancelEdit}

@@ -5,6 +5,8 @@ function ApplicationCard({ application, handleEdit, handleDelete }) {
 
       <p>{application.position}</p>
 
+      <p>Applied on: {application.date_applied}</p>
+
       <span className={`status-badge ${application.status.toLowerCase()}`}>
         {application.status}
         </span>
