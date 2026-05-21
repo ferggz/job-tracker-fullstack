@@ -6,7 +6,8 @@ function ApplicationForm({
   status,
   setStatus,
   handleSubmit,
-  editingId
+  editingId,
+  handleCancelEdit
 }) {
   return (
     <form className="application-form" onSubmit={handleSubmit}>
@@ -36,9 +37,18 @@ function ApplicationForm({
         <option value="Offer">Offer</option>
       </select>
 
-      <button type="submit">
+      <button
+        type="submit"
+        disabled={!company.trim() || !position.trim()}
+        >
         {editingId ? "Update application" : "Add application"}
       </button>
+
+      {editingId && (
+        <button type="button" onClick={handleCancelEdit}>
+            Cancel
+        </button>
+        )}
     </form>
   )
 }

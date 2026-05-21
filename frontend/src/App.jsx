@@ -16,6 +16,8 @@ function App() {
   const [position, setPosition] = useState("")
   const [status, setStatus] = useState("Applied")
   const [editingId, setEditingId] = useState(null)
+  const [filterStatus, setFilterStatus] = useState("All")
+  const [searchTerm, setSearchTerm] = useState("")
 
   useEffect(() => {
     fetchApplications()
@@ -79,12 +81,90 @@ function handleEdit(application) {
   setStatus(application.status)
 }
 
+const statusOrder = {
+  Offer: 1,
+  Interview: 2,
+  Applied: 3,
+  Rejected: 4
+}
+
+const filteredApplications = applications.filter(application => {
+  const matchesStatus =
+    filterStatus === "All" || application.status === filterStatus
+
+  const matchesSearch =
+    application.company.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    application.position.toLowerCase().includes(searchTerm.toLowerCase())
+
+  return matchesStatus && matchesSearch
+})
+
+const sortedApplications = [...filteredApplications].sort(
+  (a, b) => statusOrder[a.status] - statusOrder[b.status]
+)
+
+const totalApplications = applications.length
+const interviews = applications.filter(
+  application => application.status === "Interview"
+).length
+const offers = applications.filter(
+  application => application.status === "Offer"
+).length
+
+function handleCancelEdit() {
+  setEditingId(null)
+  setCompany("")
+  setPosition("")
+  setStatus("Applied")
+}
+
   return (
     <main className="app">
       <section className="hero">
         <h1>Job Tracker</h1>
         <p>Track your job applications from one simple dashboard.</p>
       </section>
+
+      <section className="stats">
+        <div>
+          <strong>{totalApplications}</strong>
+          <span>Total</span>
+        </div>
+
+        <div>
+          <strong>{interviews}</strong>
+          <span>Interviews</span>
+        </div>
+
+        <div>
+          <strong>{offers}</strong>
+          <span>Offers</span>
+        </div>
+      </section>
+
+      <section className="filters">
+        <input
+          type="text"
+          placeholder="Search by company or position"
+          value={searchTerm}
+          onChange={event => setSearchTerm(event.target.value)}
+        />
+
+        <select
+          value={filterStatus}
+          onChange={event => setFilterStatus(event.target.value)}
+        >
+          <option value="All">All statuses</option>
+          <option value="Offer">Offer</option>
+          <option value="Interview">Interview</option>
+          <option value="Applied">Applied</option>
+          <option value="Rejected">Rejected</option>
+        </select>
+      </section>
+
+      <p className="results-count">
+        Showing {sortedApplications.length} of {applications.length} applications
+      </p>
 
       <ApplicationForm
         company={company}
@@ -95,10 +175,11 @@ function handleEdit(application) {
         setStatus={setStatus}
         handleSubmit={handleSubmit}
         editingId={editingId}
+        handleCancelEdit={handleCancelEdit}
       />
 
       <ApplicationList
-        applications={applications}
+        applications={sortedApplications}
         handleEdit={handleEdit}
         handleDelete={handleDelete}
       />

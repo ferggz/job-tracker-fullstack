@@ -10,11 +10,11 @@ function ApplicationCard({ application, handleEdit, handleDelete }) {
         </span>
 
       <div className="card-buttons">
-        <button onClick={() => handleEdit(application)}>
+        <button className="edit-button" onClick={() => handleEdit(application)}>
           Edit
         </button>
 
-        <button onClick={() => handleDelete(application.id)}>
+        <button className="delete-button" onClick={() => handleDelete(application.id)}>
           Delete
         </button>
       </div>
