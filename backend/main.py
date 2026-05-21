@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
+from database import get_connection
 
 app = FastAPI()
 
@@ -40,40 +41,81 @@ def home():
 
 @app.get("/applications")
 def get_applications():
-    return applications
+    connection = get_connection()
+
+    applications = connection.execute(
+        "SELECT * FROM applications"
+    ).fetchall()
+
+    connection.close()
+
+    return [dict(application) for application in applications]
 
 
 @app.post("/applications")
 def create_application(application: ApplicationCreate):
-    new_application = {
-        "id": len(applications) + 1,
-        "company": application.company,
-        "position": application.position,
-        "status": application.status
-    }
+    connection = get_connection()
 
-    applications.append(new_application)
+    cursor = connection.execute(
+        """
+        INSERT INTO applications (company, position, status)
+        VALUES (?, ?, ?)
+        """,
+        (application.company, application.position, application.status)
+    )
 
-    return new_application
+    connection.commit()
+
+    new_application = connection.execute(
+        "SELECT * FROM applications WHERE id = ?",
+        (cursor.lastrowid,)
+    ).fetchone()
+
+    connection.close()
+
+    return dict(new_application)
 
 
 @app.put("/applications/{application_id}")
 def update_application(application_id: int, updated_application: ApplicationCreate):
-    for application in applications:
-        if application["id"] == application_id:
-            application["company"] = updated_application.company
-            application["position"] = updated_application.position
-            application["status"] = updated_application.status
-            return application
+    connection = get_connection()
 
-    return {"message": "Application not found"}
+    connection.execute(
+        """
+        UPDATE applications
+        SET company = ?, position = ?, status = ?
+        WHERE id = ?
+        """,
+        (
+            updated_application.company,
+            updated_application.position,
+            updated_application.status,
+            application_id
+        )
+    )
+
+    connection.commit()
+
+    application = connection.execute(
+        "SELECT * FROM applications WHERE id = ?",
+        (application_id,)
+    ).fetchone()
+
+    connection.close()
+
+    return dict(application)
 
 
 @app.delete("/applications/{application_id}")
 def delete_application(application_id: int):
-    for application in applications:
-        if application["id"] == application_id:
-            applications.remove(application)
-            return {"message": "Application deleted"}
+    connection = get_connection()
 
-    return {"message": "Application not found"}
+    connection.execute(
+        "DELETE FROM applications WHERE id = ?",
+        (application_id,)
+    )
+
+    connection.commit()
+    connection.close()
+
+    return {"message": "Application deleted"}
