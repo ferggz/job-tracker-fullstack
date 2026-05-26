@@ -1,8 +1,18 @@
-import sqlite3
+from sqlalchemy import create_engine
+from sqlalchemy.orm import declarative_base, sessionmaker
+from dotenv import load_dotenv
+import os
 
+load_dotenv()
 
-def get_connection():
-    connection = sqlite3.connect("job_tracker.db")
-    connection.row_factory = sqlite3.Row
+DATABASE_URL = os.getenv("DATABASE_URL")
 
-    return connection
+engine = create_engine(DATABASE_URL)
+
+SessionLocal = sessionmaker(
+    autocommit=False,
+    autoflush=False,
+    bind=engine
+)
+
+Base = declarative_base()

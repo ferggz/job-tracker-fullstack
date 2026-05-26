@@ -1,19 +1,6 @@
-from database import get_connection
+from database import engine, Base
+from models import Application
 
+Base.metadata.create_all(bind=engine)
 
-connection = get_connection()
-
-connection.execute("""
-CREATE TABLE IF NOT EXISTS applications (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    company TEXT NOT NULL,
-    position TEXT NOT NULL,
-    status TEXT NOT NULL,
-    date_applied TEXT NOT NULL
-)
-""")
-
-connection.commit()
-connection.close()
-
-print("Database initialized")
+print("Tables created successfully")

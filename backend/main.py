@@ -1,7 +1,10 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Depends, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from database import get_connection
+from sqlalchemy.orm import Session
+
+from database import SessionLocal
+from models import Application
 
 app = FastAPI()
 
@@ -24,94 +27,83 @@ class ApplicationCreate(BaseModel):
     date_applied: str
 
 
+def get_db():
+    db = SessionLocal()
+
+    try:
+        yield db
+    finally:
+        db.close()
+
+
 @app.get("/")
 def home():
     return {"message": "Job Tracker API"}
 
 
 @app.get("/applications")
-def get_applications():
-    connection = get_connection()
+def get_applications(db: Session = Depends(get_db)):
+    applications = db.query(Application).all()
 
-    applications = connection.execute(
-        "SELECT * FROM applications"
-    ).fetchall()
-
-    connection.close()
-
-    return [dict(application) for application in applications]
+    return applications
 
 
 @app.post("/applications")
-def create_application(application: ApplicationCreate):
-    connection = get_connection()
-
-    cursor = connection.execute(
-        """
-        INSERT INTO applications (company, position, status, date_applied)
-        VALUES (?, ?, ?, ?)
-        """,
-        (
-            application.company,
-            application.position,
-            application.status,
-            application.date_applied
-        )
+def create_application(
+    application: ApplicationCreate,
+    db: Session = Depends(get_db)
+):
+    new_application = Application(
+        company=application.company,
+        position=application.position,
+        status=application.status,
+        date_applied=application.date_applied
     )
-    connection.commit()
 
-    new_application = connection.execute(
-        "SELECT * FROM applications WHERE id = ?",
-        (cursor.lastrowid,)
-    ).fetchone()
+    db.add(new_application)
+    db.commit()
+    db.refresh(new_application)
 
-    connection.close()
-
-    return dict(new_application)
+    return new_application
 
 
 @app.put("/applications/{application_id}")
 def update_application(
     application_id: int,
-    updated_application: ApplicationCreate
+    updated_application: ApplicationCreate,
+    db: Session = Depends(get_db)
 ):
-    connection = get_connection()
+    application = db.query(Application).filter(
+        Application.id == application_id
+    ).first()
 
-    connection.execute(
-        """
-        UPDATE applications
-        SET company = ?, position = ?, status = ?, date_applied = ?
-        WHERE id = ?
-        """,
-        (
-            updated_application.company,
-            updated_application.position,
-            updated_application.status,
-            updated_application.date_applied,
-            application_id
-        )
-    )
-    connection.commit()
+    if application is None:
+        raise HTTPException(status_code=404, detail="Application not found")
 
-    application = connection.execute(
-        "SELECT * FROM applications WHERE id = ?",
-        (application_id,)
-    ).fetchone()
+    application.company = updated_application.company
+    application.position = updated_application.position
+    application.status = updated_application.status
+    application.date_applied = updated_application.date_applied
 
-    connection.close()
+    db.commit()
+    db.refresh(application)
 
-    return dict(application)
+    return application
 
 
 @app.delete("/applications/{application_id}")
-def delete_application(application_id: int):
-    connection = get_connection()
+def delete_application(
+    application_id: int,
+    db: Session = Depends(get_db)
+):
+    application = db.query(Application).filter(
+        Application.id == application_id
+    ).first()
 
-    connection.execute(
-        "DELETE FROM applications WHERE id = ?",
-        (application_id,)
-    )
-    connection.commit()
-    connection.close()
+    if application is None:
+        raise HTTPException(status_code=404, detail="Application not found")
+
+    db.delete(application)
+    db.commit()
 
     return {"message": "Application deleted"}
