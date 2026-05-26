@@ -1,0 +1,14 @@
+[33mb63aca4[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m)[m Create database tables on startup
+[33mcc38236[m[33m ([m[1;32mmigrate-postgresql-sqlalchemy[m[33m)[m Migrate backend from SQLite to PostgreSQL with SQLAlchemy
+[33m2a2b3d9[m Updatting README
+[33ma24cd65[m CORS for prod frontend
+[33mc94749d[m API URL
+[33mf2ebf4c[m Improve README and screenshots
+[33m929d3e8[m Advanced frontend features and UX improvements
+[33mc457532[m Dashboard filters and UI improvements
+[33ma4d8fa0[m Add filters search and dashboard improvements
+[33m0040837[m Improving frontend UI
+[33mde811d2[m Improving UI and validation
+[33m57f4682[m Add SQLite persistence to FastAPI backend
+[33m219a853[m Refactor React frontend into components and API service
+[33m0ba2442[m Initial fullstack job tracker setup

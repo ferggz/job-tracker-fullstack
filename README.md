@@ -1,6 +1,6 @@
 # Job Tracker Fullstack
 
-A fullstack job application tracker built with React, FastAPI and SQLite.
+A fullstack job application tracker built with React, FastAPI, PostgreSQL and SQLAlchemy.
 
 The application allows users to create, manage, filter and organize job applications through a modern frontend connected to a REST API backend.
 
@@ -31,21 +31,26 @@ Through this project I practiced:
 - Structuring a React application using reusable components
 - Managing state with React hooks
 - Creating CRUD operations between frontend and backend
-- Using SQLite for persistent data storage
+- Migrating a backend from SQLite to PostgreSQL
+- Using SQLAlchemy ORM for database operations
+- Creating relational database models
 - Building and consuming REST API endpoints
 - Using Pydantic models for request validation
 - Working with CORS middleware
 - Organizing frontend services for API communication
+- Managing environment variables
 - Creating responsive user interfaces with CSS
 - Implementing filtering, sorting and search functionality
 - Using localStorage to persist frontend preferences
 - Improving frontend UX with conditional rendering and validations
 - Structuring a fullstack project architecture
+- - Deploying a PostgreSQL-based fullstack application
 
 ## Features
 
 - Create, edit and delete job applications
-- SQLite database persistence
+- PostgreSQL database persistence
+- SQLAlchemy ORM integration
 - React frontend connected to FastAPI backend
 - Filter applications by status
 - Search applications by company or position
@@ -70,33 +75,23 @@ Through this project I practiced:
 
 - Python
 - FastAPI
-- SQLite
+- PostgreSQL
+- SQLAlchemy
 - Pydantic
 - Uvicorn
 
-## Project Structure
+## Project Evolution
 
-```text
-job-tracker-fullstack/
-│
-├── backend/
-│   ├── database.py
-│   ├── init_db.py
-│   ├── main.py
-│   ├── requirements.txt
-│   └── job_tracker.db
-│
-├── frontend/
-│   ├── src/
-│   │   ├── components/
-│   │   ├── services/
-│   │   ├── App.jsx
-│   │   └── App.css
-│   ├── package.json
-│   └── vite.config.js
-│
-└── .gitignore
-```
+### Initial Version
+- FastAPI backend with SQLite
+- Basic CRUD operations
+- React frontend connected to a REST API
+
+### Current Version
+- Migrated database from SQLite to PostgreSQL
+- Replaced raw SQL queries with SQLAlchemy ORM
+- Improved backend architecture and scalability
+- Deployed PostgreSQL-based backend on Render
 
 ## How to Run
 
@@ -115,10 +110,10 @@ Install dependencies:
 pip install -r requirements.txt
 ```
 
-Initialize the database:
+Create a `.env` file inside the backend folder:
 
-```bash
-python init_db.py
+```env
+DATABASE_URL=your_postgresql_database_url
 ```
 
 Run the backend server:
