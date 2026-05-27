@@ -25,6 +25,8 @@ function App() {
     )
   const [searchTerm, setSearchTerm] = useState("")
   const [dateApplied, setDateApplied] = useState("")
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState("")
 
   useEffect(() => {
     fetchApplications()
@@ -36,12 +38,19 @@ function App() {
 }, [filterStatus, sortBy])
 
   async function fetchApplications() {
+  try {
     const data = await getApplications()
     setApplications(data)
+    setError("")
+  } catch {
+    setError("Could not connect to the server. Please try again later.")
   }
+}
 
   async function handleSubmit(event) {
     event.preventDefault()
+
+    setLoading(true)
 
     const application = {
       company,
@@ -50,25 +59,38 @@ function App() {
       date_applied: dateApplied
     }
 
-    if (editingId) {
-      const updatedApplication = await updateApplication(editingId, application)
-
-      setApplications(
-        applications.map(application =>
-          application.id === editingId ? updatedApplication : application
+    try {
+      if (editingId) {
+        const updatedApplication = await updateApplication(
+          editingId,
+          application,
         )
-      )
 
-      setEditingId(null)
-    } else {
-      const newApplication = await createApplication(application)
-      setApplications([...applications, newApplication])
-    }
+        setApplications(
+          applications.map(application =>
+            application.id === editingId
+              ? updatedApplication
+              : application
+          )
+        )
 
-    setCompany("")
-    setPosition("")
-    setStatus("Applied")
-    setDateApplied("")
+        setEditingId(null)
+      } else {
+        const newApplication = await createApplication(application)
+
+        setApplications([...applications, newApplication])
+      }
+
+      setCompany("")
+      setPosition("")
+      setStatus("Applied")
+      setDateApplied("")
+      setError("")
+      } catch {
+        setError("Something went wrong while saving the application.")
+      } finally {
+        setLoading(false)
+      }
   }
 
   async function handleDelete(id) {
@@ -157,6 +179,8 @@ function handleCancelEdit() {
         <p>Track your job applications from one simple dashboard.</p>
       </section>
 
+      {error && <p className="error-message">{error}</p>}
+
       <section className="stats">
         <div>
           <strong>{totalApplications}</strong>
@@ -220,6 +244,7 @@ function handleCancelEdit() {
         handleSubmit={handleSubmit}
         editingId={editingId}
         handleCancelEdit={handleCancelEdit}
+        loading={loading}
       />
 
       <ApplicationList

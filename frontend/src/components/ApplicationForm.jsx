@@ -9,7 +9,8 @@ function ApplicationForm({
   setDateApplied,
   handleSubmit,
   editingId,
-  handleCancelEdit
+  handleCancelEdit,
+  loading
 }) {
   return (
     <form className="application-form" onSubmit={handleSubmit}>
@@ -48,9 +49,9 @@ function ApplicationForm({
 
       <button
         type="submit"
-        disabled={!company.trim() || !position.trim()}
-        >
-        {editingId ? "Update application" : "Add application"}
+        disabled={loading || !company.trim() || !position.trim()}
+      >
+        {loading ? "Saving..." : editingId ? "Update application" : "Add application"}
       </button>
 
       {editingId && (

@@ -16,7 +16,14 @@ function ApplicationCard({ application, handleEdit, handleDelete }) {
           Edit
         </button>
 
-        <button className="delete-button" onClick={() => handleDelete(application.id)}>
+        <button
+          className="delete-button"
+          onClick={() => {
+            if (window.confirm("Delete this application?")) {
+              handleDelete(application.id)
+            }
+          }}
+        >
           Delete
         </button>
       </div>
