@@ -1,6 +1,6 @@
 # Job Tracker Fullstack
 
-A fullstack job application tracker built with React, FastAPI, PostgreSQL and SQLAlchemy.
+A fullstack job application tracker built with React, FastAPI, PostgreSQL, SQLAlchemy and Docker.
 
 The application allows users to create, manage, filter and organize job applications through a modern frontend connected to a REST API backend.
 
@@ -44,7 +44,11 @@ Through this project I practiced:
 - Using localStorage to persist frontend preferences
 - Improving frontend UX with conditional rendering and validations
 - Structuring a fullstack project architecture
-- - Deploying a PostgreSQL-based fullstack application
+- Deploying a PostgreSQL-based fullstack application
+- Containerizing applications with Docker
+- Using Docker Compose to orchestrate multiple services
+- Running React, FastAPI and PostgreSQL in containers
+- Managing persistent database volumes with Docker
 
 ## Features
 
@@ -80,6 +84,11 @@ Through this project I practiced:
 - Pydantic
 - Uvicorn
 
+### DevOps
+
+- Docker
+- Docker Compose
+
 ## Project Evolution
 
 ### Initial Version
@@ -92,6 +101,8 @@ Through this project I practiced:
 - Replaced raw SQL queries with SQLAlchemy ORM
 - Improved backend architecture and scalability
 - Deployed PostgreSQL-based backend on Render
+- Dockerized frontend, backend and PostgreSQL
+- Added Docker Compose for local development
 
 ## How to Run
 
@@ -153,6 +164,33 @@ Frontend URL:
 ```text
 http://localhost:5173
 ```
+## Run with Docker
+
+Build and start all services:
+
+```bash
+docker compose up --build
+```
+
+Stop services:
+
+```bash
+docker compose down
+```
+
+Services:
+
+- Frontend: http://localhost:5173
+- Backend: http://localhost:8000
+- Swagger Docs: http://localhost:8000/docs
+
+The application runs with:
+
+- React frontend
+- FastAPI backend
+- PostgreSQL database
+
+All services are orchestrated with Docker Compose.
 
 ## API Endpoints
 
