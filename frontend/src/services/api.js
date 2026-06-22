@@ -1,11 +1,10 @@
-const API_URL = "https://job-tracker-fullstack-z6cy.onrender.com/applications"
-
+const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8000"
+const API_URL = `${BASE_URL}/applications`
 
 export async function getApplications() {
   const response = await fetch(API_URL)
   return response.json()
 }
-
 
 export async function createApplication(application) {
   const response = await fetch(API_URL, {
@@ -19,7 +18,6 @@ export async function createApplication(application) {
   return response.json()
 }
 
-
 export async function updateApplication(id, application) {
   const response = await fetch(`${API_URL}/${id}`, {
     method: "PUT",
@@ -31,7 +29,6 @@ export async function updateApplication(id, application) {
 
   return response.json()
 }
-
 
 export async function deleteApplication(id) {
   await fetch(`${API_URL}/${id}`, {
