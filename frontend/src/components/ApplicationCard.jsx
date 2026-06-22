@@ -1,3 +1,5 @@
+import ReminderList from "./ReminderList"
+
 function ApplicationCard({ application, handleEdit, handleDelete }) {
   return (
     <div className="application-card">
@@ -10,6 +12,10 @@ function ApplicationCard({ application, handleEdit, handleDelete }) {
       <span className={`status-badge ${application.status.toLowerCase()}`}>
         {application.status}
         </span>
+      
+      <h3>Reminders</h3>
+
+      <ReminderList applicationId={application.id} />
 
       <div className="card-buttons">
         <button className="edit-button" onClick={() => handleEdit(application)}>
