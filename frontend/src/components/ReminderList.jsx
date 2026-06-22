@@ -58,6 +58,16 @@ function ReminderList({ applicationId }) {
     )
   }
 
+  function isOverdue(reminder) {
+  const today = new Date()
+  const dueDate = new Date(reminder.due_date)
+
+  today.setHours(0, 0, 0, 0)
+  dueDate.setHours(0, 0, 0, 0)
+
+  return dueDate < today && !reminder.completed
+}
+
   return (
     <div className="reminders">
       <h3>Reminders</h3>
@@ -67,9 +77,13 @@ function ReminderList({ applicationId }) {
       ) : (
         <ul>
           {reminders.map(reminder => (
-            <li key={reminder.id}>
+            <li
+              key={reminder.id}
+              className={isOverdue(reminder) ? "reminder-overdue" : ""}
+            >
               <span className={reminder.completed ? "reminder-completed" : ""}>
-                {reminder.completed ? "[Done]" : "[Pending]"} {reminder.title} - {reminder.due_date}
+                {reminder.completed ? "[Done]" : isOverdue(reminder) ? "[Overdue]" : "[Pending]"}{" "}
+                {reminder.title} - {reminder.due_date}
               </span>
 
               {!reminder.completed && (
