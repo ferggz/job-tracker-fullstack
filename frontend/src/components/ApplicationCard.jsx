@@ -12,8 +12,6 @@ function ApplicationCard({ application, handleEdit, handleDelete }) {
       <span className={`status-badge ${application.status.toLowerCase()}`}>
         {application.status}
         </span>
-      
-      <h3>Reminders</h3>
 
       <ReminderList applicationId={application.id} />
 
