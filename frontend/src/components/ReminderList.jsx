@@ -68,8 +68,8 @@ function ReminderList({ applicationId }) {
         <ul>
           {reminders.map(reminder => (
             <li key={reminder.id}>
-              <span>
-                {reminder.completed ? "✅" : "⏰"} {reminder.title} - {reminder.due_date}
+              <span className={reminder.completed ? "reminder-completed" : ""}>
+                {reminder.completed ? "[Done]" : "[Pending]"} {reminder.title} - {reminder.due_date}
               </span>
 
               {!reminder.completed && (
