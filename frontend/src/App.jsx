@@ -9,6 +9,8 @@ import {
   deleteApplication
 } from "./services/api"
 import "./App.css"
+import UpcomingReminders from "./components/UpcomingReminders"
+
 
 function App() {
   const [applications, setApplications] = useState([])
@@ -197,6 +199,8 @@ function handleCancelEdit() {
           <span>Offers</span>
         </div>
       </section>
+
+      <UpcomingReminders />
 
       <section className="filters">
       <input

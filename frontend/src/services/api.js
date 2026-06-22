@@ -61,3 +61,8 @@ export async function deleteReminder(reminderId) {
     method: "DELETE"
   })
 }
+
+export async function getReminders() {
+  const response = await fetch(REMINDERS_URL)
+  return response.json()
+}

@@ -194,3 +194,9 @@ def delete_reminder(
     db.commit()
 
     return {"message": "Reminder deleted"}
+
+
+@app.get("/reminders")
+def get_reminders(db: Session = Depends(get_db)):
+    reminders = db.query(Reminder).all()
+    return reminders
