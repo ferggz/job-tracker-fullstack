@@ -79,22 +79,30 @@ function ReminderList({ applicationId }) {
           {reminders.map(reminder => (
             <li
               key={reminder.id}
-              className={isOverdue(reminder) ? "reminder-overdue" : ""}
+              className={isOverdue(reminder) ? "reminder-overdue reminder-item" : "reminder-item"}
             >
-              <span className={reminder.completed ? "reminder-completed" : ""}>
-                {reminder.completed ? "[Done]" : isOverdue(reminder) ? "[Overdue]" : "[Pending]"}{" "}
-                {reminder.title} - {reminder.due_date}
-              </span>
+              <div className="reminder-content">
+                <span className={reminder.completed ? "reminder-completed" : ""}>
+                  {reminder.completed ? "[Done]" : isOverdue(reminder) ? "[Overdue]" : "[Pending]"}{" "}
+                  {reminder.title} - {reminder.due_date}
+                </span>
 
-              {!reminder.completed && (
-                <button onClick={() => handleComplete(reminder.id)}>
-                  Complete
+                {reminder.notes && (
+                  <small className="reminder-notes">{reminder.notes}</small>
+                )}
+              </div>
+
+              <div className="reminder-actions">
+                {!reminder.completed && (
+                  <button onClick={() => handleComplete(reminder.id)}>
+                    Complete
+                  </button>
+                )}
+
+                <button onClick={() => handleDelete(reminder.id)}>
+                  Delete
                 </button>
-              )}
-
-              <button onClick={() => handleDelete(reminder.id)}>
-                Delete
-              </button>
+              </div>
             </li>
           ))}
         </ul>
