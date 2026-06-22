@@ -4,7 +4,7 @@ from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 from database import SessionLocal, engine, Base
-from models import Application
+from models import Application, Reminder
 
 app = FastAPI()
 
@@ -27,6 +27,14 @@ class ApplicationCreate(BaseModel):
     position: str
     status: str
     date_applied: str
+
+
+class ReminderCreate(BaseModel):
+    application_id: int
+    title: str
+    due_date: str
+    completed: bool = False
+    notes: str | None = None
 
 
 def get_db():
@@ -109,3 +117,80 @@ def delete_application(
     db.commit()
 
     return {"message": "Application deleted"}
+
+
+@app.get("/applications/{application_id}/reminders")
+def get_application_reminders(
+    application_id: int,
+    db: Session = Depends(get_db)
+):
+    reminders = db.query(Reminder).filter(
+        Reminder.application_id == application_id
+    ).all()
+
+    return reminders
+
+
+@app.post("/reminders")
+def create_reminder(
+    reminder: ReminderCreate,
+    db: Session = Depends(get_db)
+):
+    application = db.query(Application).filter(
+        Application.id == reminder.application_id
+    ).first()
+
+    if application is None:
+        raise HTTPException(status_code=404, detail="Application not found")
+
+    new_reminder = Reminder(
+        application_id=reminder.application_id,
+        title=reminder.title,
+        due_date=reminder.due_date,
+        completed=reminder.completed,
+        notes=reminder.notes
+    )
+
+    db.add(new_reminder)
+    db.commit()
+    db.refresh(new_reminder)
+
+    return new_reminder
+
+
+@app.put("/reminders/{reminder_id}/complete")
+def complete_reminder(
+    reminder_id: int,
+    db: Session = Depends(get_db)
+):
+    reminder = db.query(Reminder).filter(
+        Reminder.id == reminder_id
+    ).first()
+
+    if reminder is None:
+        raise HTTPException(status_code=404, detail="Reminder not found")
+
+    reminder.completed = True
+
+    db.commit()
+    db.refresh(reminder)
+
+    return reminder
+
+
+@app.delete("/reminders/{reminder_id}")
+def delete_reminder(
+    reminder_id: int,
+    db: Session = Depends(get_db)
+):
+    reminder = db.query(Reminder).filter(
+        Reminder.id == reminder_id
+    ).first()
+
+    if reminder is None:
+        raise HTTPException(status_code=404, detail="Reminder not found")
+
+    db.delete(reminder)
+    db.commit()
+
+    return {"message": "Reminder deleted"}
