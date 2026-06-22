@@ -201,6 +201,9 @@ Services:
 - Backend: http://localhost:8000
 - Swagger Docs: http://localhost:8000/docs
 
+> Note: PostgreSQL is exposed locally on port `5433` to avoid conflicts with existing PostgreSQL installations.
+
+
 The application runs with:
 
 - React frontend
