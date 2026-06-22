@@ -166,6 +166,23 @@ http://localhost:5173
 ```
 ## Run with Docker
 
+### Configure environment variables
+
+Create a `.env` file inside the `backend` folder from the example file.
+
+**Windows PowerShell:**
+
+```powershell
+Copy-Item backend/.env.example backend/.env
+```
+
+**Linux/macOS:**
+
+```bash
+cp backend/.env.example backend/.env
+```
+
+
 Build and start all services:
 
 ```bash
