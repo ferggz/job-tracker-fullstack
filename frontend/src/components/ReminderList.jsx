@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react"
 import {
   createReminder,
-  getApplicationReminders
+  getApplicationReminders,
+  completeReminder,
+  deleteReminder
 } from "../services/api"
 
 function ReminderList({ applicationId }) {
@@ -36,6 +38,26 @@ function ReminderList({ applicationId }) {
     setNotes("")
   }
 
+  async function handleComplete(reminderId) {
+    await completeReminder(reminderId)
+
+    setReminders(
+      reminders.map(reminder =>
+        reminder.id === reminderId
+          ? { ...reminder, completed: true }
+          : reminder
+      )
+    )
+  }
+
+  async function handleDelete(reminderId) {
+    await deleteReminder(reminderId)
+
+    setReminders(
+      reminders.filter(reminder => reminder.id !== reminderId)
+    )
+  }
+
   return (
     <div className="reminders">
       <h3>Reminders</h3>
@@ -46,7 +68,19 @@ function ReminderList({ applicationId }) {
         <ul>
           {reminders.map(reminder => (
             <li key={reminder.id}>
-              {reminder.title} - {reminder.due_date}
+              <span>
+                {reminder.completed ? "✅" : "⏰"} {reminder.title} - {reminder.due_date}
+              </span>
+
+              {!reminder.completed && (
+                <button onClick={() => handleComplete(reminder.id)}>
+                  Complete
+                </button>
+              )}
+
+              <button onClick={() => handleDelete(reminder.id)}>
+                Delete
+              </button>
             </li>
           ))}
         </ul>
