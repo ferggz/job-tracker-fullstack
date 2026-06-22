@@ -58,6 +58,16 @@ function ReminderList({ applicationId }) {
     )
   }
 
+  function isOverdue(reminder) {
+  const today = new Date()
+  const dueDate = new Date(reminder.due_date)
+
+  today.setHours(0, 0, 0, 0)
+  dueDate.setHours(0, 0, 0, 0)
+
+  return dueDate < today && !reminder.completed
+}
+
   return (
     <div className="reminders">
       <h3>Reminders</h3>
@@ -67,20 +77,32 @@ function ReminderList({ applicationId }) {
       ) : (
         <ul>
           {reminders.map(reminder => (
-            <li key={reminder.id}>
-              <span className={reminder.completed ? "reminder-completed" : ""}>
-                {reminder.completed ? "[Done]" : "[Pending]"} {reminder.title} - {reminder.due_date}
-              </span>
+            <li
+              key={reminder.id}
+              className={isOverdue(reminder) ? "reminder-overdue reminder-item" : "reminder-item"}
+            >
+              <div className="reminder-content">
+                <span className={reminder.completed ? "reminder-completed" : ""}>
+                  {reminder.completed ? "[Done]" : isOverdue(reminder) ? "[Overdue]" : "[Pending]"}{" "}
+                  {reminder.title} - {reminder.due_date}
+                </span>
 
-              {!reminder.completed && (
-                <button onClick={() => handleComplete(reminder.id)}>
-                  Complete
+                {reminder.notes && (
+                  <small className="reminder-notes">{reminder.notes}</small>
+                )}
+              </div>
+
+              <div className="reminder-actions">
+                {!reminder.completed && (
+                  <button onClick={() => handleComplete(reminder.id)}>
+                    Complete
+                  </button>
+                )}
+
+                <button onClick={() => handleDelete(reminder.id)}>
+                  Delete
                 </button>
-              )}
-
-              <button onClick={() => handleDelete(reminder.id)}>
-                Delete
-              </button>
+              </div>
             </li>
           ))}
         </ul>
