@@ -7,8 +7,11 @@ function UpcomingReminders() {
   useEffect(() => {
     async function fetchReminders() {
       const data = await getReminders()
-      console.log("reminders:", data)
-      setReminders(data.filter(reminder => !reminder.completed))
+      setReminders(
+        data
+            .filter(reminder => !reminder.completed)
+            .sort((a, b) => new Date(a.due_date) - new Date(b.due_date))
+        )
     }
 
     fetchReminders()
