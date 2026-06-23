@@ -72,3 +72,41 @@ def test_create_reminder_returns_created_reminder():
     assert data["completed"] is False
     assert data["notes"] == reminder_payload["notes"]
     assert "id" in data
+
+
+def test_complete_reminder_marks_reminder_as_completed():
+    application_payload = {
+        "company": "Complete Test Company",
+        "position": "Frontend Developer",
+        "status": "Applied",
+        "date_applied": "2026-06-22"
+    }
+
+    application_response = client.post(
+        "/applications",
+        json=application_payload
+    )
+
+    application_id = application_response.json()["id"]
+
+    reminder_payload = {
+        "application_id": application_id,
+        "title": "Technical interview",
+        "due_date": "2026-07-01",
+        "completed": False,
+        "notes": ""
+    }
+
+    reminder_response = client.post(
+        "/reminders",
+        json=reminder_payload
+    )
+
+    reminder_id = reminder_response.json()["id"]
+
+    response = client.put(
+        f"/reminders/{reminder_id}/complete"
+    )
+
+    assert response.status_code == 200
+    assert response.json()["completed"] is True
