@@ -4,6 +4,14 @@ from sqlalchemy.orm import relationship
 from database import Base
 
 
+class User(Base):
+    __tablename__ = "users"
+
+    id = Column(Integer, primary_key=True)
+    email = Column(Text, unique=True, nullable=False)
+    hashed_password = Column(Text, nullable=False)
+
+
 class Application(Base):
     __tablename__ = "applications"
 
@@ -12,6 +20,9 @@ class Application(Base):
     position = Column(Text, nullable=False)
     status = Column(Text, nullable=False)
     date_applied = Column(Text, nullable=False)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=True)
+
+    user = relationship("User")
 
     reminders = relationship(
         "Reminder",
