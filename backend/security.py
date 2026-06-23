@@ -1,23 +1,27 @@
 from datetime import datetime, timedelta, timezone
 import os
 
+from argon2 import PasswordHasher
+from argon2.exceptions import VerifyMismatchError
 from jose import jwt
-from passlib.context import CryptContext
 
 
 SECRET_KEY = os.getenv("SECRET_KEY", "dev-secret-key")
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
-password_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+password_hasher = PasswordHasher()
 
 
 def hash_password(password: str) -> str:
-    return password_context.hash(password)
+    return password_hasher.hash(password)
 
 
 def verify_password(password: str, hashed_password: str) -> bool:
-    return password_context.verify(password, hashed_password)
+    try:
+        return password_hasher.verify(hashed_password, password)
+    except VerifyMismatchError:
+        return False
 
 
 def create_access_token(data: dict) -> str:
