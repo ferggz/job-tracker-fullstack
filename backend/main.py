@@ -226,8 +226,13 @@ def delete_reminder(
 
 
 @app.get("/reminders")
-def get_reminders(db: Session = Depends(get_db)):
-    reminders = db.query(Reminder).all()
+def get_reminders(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    reminders = db.query(Reminder).join(Application).filter(
+        Application.user_id == current_user.id
+    ).all()
 
     return [
         {
