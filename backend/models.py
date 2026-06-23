@@ -20,6 +20,9 @@ class Application(Base):
     position = Column(Text, nullable=False)
     status = Column(Text, nullable=False)
     date_applied = Column(Text, nullable=False)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=True)
+
+    user = relationship("User")
 
     reminders = relationship(
         "Reminder",

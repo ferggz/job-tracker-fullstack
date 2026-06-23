@@ -57,22 +57,27 @@ def home():
 
 
 @app.get("/applications")
-def get_applications(db: Session = Depends(get_db)):
-    applications = db.query(Application).all()
-
-    return applications
+def get_applications(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    return db.query(Application).filter(
+        Application.user_id == current_user.id
+    ).all()
 
 
 @app.post("/applications")
 def create_application(
     application: ApplicationCreate,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
 ):
     new_application = Application(
         company=application.company,
         position=application.position,
         status=application.status,
-        date_applied=application.date_applied
+        date_applied=application.date_applied,
+        user_id=current_user.id
     )
 
     db.add(new_application)
@@ -86,10 +91,12 @@ def create_application(
 def update_application(
     application_id: int,
     updated_application: ApplicationCreate,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
 ):
     application = db.query(Application).filter(
-        Application.id == application_id
+        Application.id == application_id,
+        Application.user_id == current_user.id
     ).first()
 
     if application is None:
@@ -109,10 +116,12 @@ def update_application(
 @app.delete("/applications/{application_id}")
 def delete_application(
     application_id: int,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
 ):
     application = db.query(Application).filter(
-        Application.id == application_id
+        Application.id == application_id,
+        Application.user_id == current_user.id
     ).first()
 
     if application is None:
@@ -271,6 +280,9 @@ def login_user(
 
 @app.get("/me")
 def get_me(
-    current_user=Depends(get_current_user)
+    current_user: User = Depends(get_current_user)
 ):
-    return current_user
+    return {
+        "id": current_user.id,
+        "email": current_user.email
+    }
