@@ -138,3 +138,36 @@ def test_delete_reminder_returns_success_message():
 
     assert response.status_code == 200
     assert response.json() == {"message": "Reminder deleted"}
+
+
+def test_update_application_returns_updated_application():
+    create_payload = {
+        "company": "Old Company",
+        "position": "Old Position",
+        "status": "Applied",
+        "date_applied": "2026-06-22"
+    }
+
+    create_response = client.post("/applications", json=create_payload)
+    application_id = create_response.json()["id"]
+
+    update_payload = {
+        "company": "New Company",
+        "position": "New Position",
+        "status": "Interview",
+        "date_applied": "2026-06-23"
+    }
+
+    response = client.put(
+        f"/applications/{application_id}",
+        json=update_payload
+    )
+
+    assert response.status_code == 200
+
+    data = response.json()
+
+    assert data["company"] == update_payload["company"]
+    assert data["position"] == update_payload["position"]
+    assert data["status"] == update_payload["status"]
+    assert data["date_applied"] == update_payload["date_applied"]
