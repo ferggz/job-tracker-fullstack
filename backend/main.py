@@ -1,5 +1,6 @@
 from fastapi import FastAPI, Depends, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.security import OAuth2PasswordRequestForm
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
@@ -7,6 +8,8 @@ from database import SessionLocal, engine, Base
 from models import Application, Reminder, User
 from schemas import UserCreate, UserLogin
 from security import hash_password, verify_password, create_access_token
+from auth import get_current_user
+
 
 app = FastAPI()
 
@@ -243,17 +246,17 @@ def register_user(
 
 @app.post("/auth/login")
 def login_user(
-    user: UserLogin,
+    form_data: OAuth2PasswordRequestForm = Depends(),
     db: Session = Depends(get_db)
 ):
     existing_user = db.query(User).filter(
-        User.email == user.email
+        User.email == form_data.username
     ).first()
 
     if existing_user is None:
         raise HTTPException(status_code=401, detail="Invalid credentials")
 
-    if not verify_password(user.password, existing_user.hashed_password):
+    if not verify_password(form_data.password, existing_user.hashed_password):
         raise HTTPException(status_code=401, detail="Invalid credentials")
 
     token = create_access_token(
@@ -264,3 +267,10 @@ def login_user(
         "access_token": token,
         "token_type": "bearer"
     }
+
+
+@app.get("/me")
+def get_me(
+    current_user=Depends(get_current_user)
+):
+    return current_user
