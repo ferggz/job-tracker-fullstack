@@ -189,3 +189,39 @@ def test_delete_application_returns_success_message():
     assert response.json() == {
         "message": "Application deleted"
     }
+
+
+def test_register_user_returns_created_user():
+    payload = {
+        "email": "register-test@example.com",
+        "password": "password123"
+    }
+
+    response = client.post("/auth/register", json=payload)
+
+    assert response.status_code == 200
+
+    data = response.json()
+
+    assert data["email"] == payload["email"]
+    assert "id" in data
+    assert "password" not in data
+    assert "hashed_password" not in data
+
+
+def test_login_user_returns_access_token():
+    payload = {
+        "email": "login-test@example.com",
+        "password": "password123"
+    }
+
+    client.post("/auth/register", json=payload)
+
+    response = client.post("/auth/login", json=payload)
+
+    assert response.status_code == 200
+
+    data = response.json()
+
+    assert "access_token" in data
+    assert data["token_type"] == "bearer"
