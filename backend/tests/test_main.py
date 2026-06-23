@@ -171,3 +171,21 @@ def test_update_application_returns_updated_application():
     assert data["position"] == update_payload["position"]
     assert data["status"] == update_payload["status"]
     assert data["date_applied"] == update_payload["date_applied"]
+
+def test_delete_application_returns_success_message():
+    payload = {
+        "company": "Delete Company",
+        "position": "Delete Position",
+        "status": "Applied",
+        "date_applied": "2026-06-22"
+    }
+
+    create_response = client.post("/applications", json=payload)
+    application_id = create_response.json()["id"]
+
+    response = client.delete(f"/applications/{application_id}")
+
+    assert response.status_code == 200
+    assert response.json() == {
+        "message": "Application deleted"
+    }
