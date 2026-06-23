@@ -136,8 +136,17 @@ def delete_application(
 @app.get("/applications/{application_id}/reminders")
 def get_application_reminders(
     application_id: int,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
 ):
+    application = db.query(Application).filter(
+        Application.id == application_id,
+        Application.user_id == current_user.id
+    ).first()
+
+    if application is None:
+        raise HTTPException(status_code=404, detail="Application not found")
+
     reminders = db.query(Reminder).filter(
         Reminder.application_id == application_id
     ).all()
@@ -148,10 +157,12 @@ def get_application_reminders(
 @app.post("/reminders")
 def create_reminder(
     reminder: ReminderCreate,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
 ):
     application = db.query(Application).filter(
-        Application.id == reminder.application_id
+        Application.id == reminder.application_id,
+        Application.user_id == current_user.id
     ).first()
 
     if application is None:
@@ -175,10 +186,12 @@ def create_reminder(
 @app.put("/reminders/{reminder_id}/complete")
 def complete_reminder(
     reminder_id: int,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
 ):
-    reminder = db.query(Reminder).filter(
-        Reminder.id == reminder_id
+    reminder = db.query(Reminder).join(Application).filter(
+        Reminder.id == reminder_id,
+        Application.user_id == current_user.id
     ).first()
 
     if reminder is None:
@@ -195,10 +208,12 @@ def complete_reminder(
 @app.delete("/reminders/{reminder_id}")
 def delete_reminder(
     reminder_id: int,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
 ):
-    reminder = db.query(Reminder).filter(
-        Reminder.id == reminder_id
+    reminder = db.query(Reminder).join(Application).filter(
+        Reminder.id == reminder_id,
+        Application.user_id == current_user.id
     ).first()
 
     if reminder is None:
