@@ -6,6 +6,30 @@ from main import app
 client = TestClient(app)
 
 
+def get_auth_headers(email="test-user@example.com"):
+    password = "password123"
+
+    client.post(
+        "/auth/register",
+        json={
+            "email": email,
+            "password": password
+        }
+    )
+
+    response = client.post(
+        "/auth/login",
+        data={
+            "username": email,
+            "password": password
+        }
+    )
+
+    token = response.json()["access_token"]
+
+    return {"Authorization": f"Bearer {token}"}
+
+
 def test_home_returns_api_message():
     response = client.get("/")
 
@@ -14,13 +38,17 @@ def test_home_returns_api_message():
 
 
 def test_get_applications_returns_list():
-    response = client.get("/applications")
+    headers = get_auth_headers("list-apps@example.com")
+
+    response = client.get("/applications", headers=headers)
 
     assert response.status_code == 200
     assert isinstance(response.json(), list)
 
 
 def test_create_application_returns_created_application():
+    headers = get_auth_headers("create-app@example.com")
+
     payload = {
         "company": "Test Company",
         "position": "Junior Developer",
@@ -28,7 +56,11 @@ def test_create_application_returns_created_application():
         "date_applied": "2026-06-22"
     }
 
-    response = client.post("/applications", json=payload)
+    response = client.post(
+        "/applications",
+        json=payload,
+        headers=headers
+    )
 
     assert response.status_code == 200
 
@@ -42,6 +74,8 @@ def test_create_application_returns_created_application():
 
 
 def test_create_reminder_returns_created_reminder():
+    headers = get_auth_headers("create-reminder@example.com")
+
     application_payload = {
         "company": "Reminder Test Company",
         "position": "Backend Developer",
@@ -49,7 +83,12 @@ def test_create_reminder_returns_created_reminder():
         "date_applied": "2026-06-22"
     }
 
-    application_response = client.post("/applications", json=application_payload)
+    application_response = client.post(
+        "/applications",
+        json=application_payload,
+        headers=headers
+    )
+
     application_id = application_response.json()["id"]
 
     reminder_payload = {
@@ -60,7 +99,11 @@ def test_create_reminder_returns_created_reminder():
         "notes": "Send email"
     }
 
-    response = client.post("/reminders", json=reminder_payload)
+    response = client.post(
+        "/reminders",
+        json=reminder_payload,
+        headers=headers
+    )
 
     assert response.status_code == 200
 
@@ -75,6 +118,8 @@ def test_create_reminder_returns_created_reminder():
 
 
 def test_complete_reminder_marks_reminder_as_completed():
+    headers = get_auth_headers("complete-reminder@example.com")
+
     application_payload = {
         "company": "Complete Test Company",
         "position": "Frontend Developer",
@@ -84,7 +129,8 @@ def test_complete_reminder_marks_reminder_as_completed():
 
     application_response = client.post(
         "/applications",
-        json=application_payload
+        json=application_payload,
+        headers=headers
     )
 
     application_id = application_response.json()["id"]
@@ -99,13 +145,15 @@ def test_complete_reminder_marks_reminder_as_completed():
 
     reminder_response = client.post(
         "/reminders",
-        json=reminder_payload
+        json=reminder_payload,
+        headers=headers
     )
 
     reminder_id = reminder_response.json()["id"]
 
     response = client.put(
-        f"/reminders/{reminder_id}/complete"
+        f"/reminders/{reminder_id}/complete",
+        headers=headers
     )
 
     assert response.status_code == 200
@@ -113,6 +161,8 @@ def test_complete_reminder_marks_reminder_as_completed():
 
 
 def test_delete_reminder_returns_success_message():
+    headers = get_auth_headers("delete-reminder@example.com")
+
     application_payload = {
         "company": "Delete Reminder Company",
         "position": "Backend Developer",
@@ -120,7 +170,12 @@ def test_delete_reminder_returns_success_message():
         "date_applied": "2026-06-22"
     }
 
-    application_response = client.post("/applications", json=application_payload)
+    application_response = client.post(
+        "/applications",
+        json=application_payload,
+        headers=headers
+    )
+
     application_id = application_response.json()["id"]
 
     reminder_payload = {
@@ -131,16 +186,26 @@ def test_delete_reminder_returns_success_message():
         "notes": ""
     }
 
-    reminder_response = client.post("/reminders", json=reminder_payload)
+    reminder_response = client.post(
+        "/reminders",
+        json=reminder_payload,
+        headers=headers
+    )
+
     reminder_id = reminder_response.json()["id"]
 
-    response = client.delete(f"/reminders/{reminder_id}")
+    response = client.delete(
+        f"/reminders/{reminder_id}",
+        headers=headers
+    )
 
     assert response.status_code == 200
     assert response.json() == {"message": "Reminder deleted"}
 
 
 def test_update_application_returns_updated_application():
+    headers = get_auth_headers("update-app@example.com")
+
     create_payload = {
         "company": "Old Company",
         "position": "Old Position",
@@ -148,7 +213,12 @@ def test_update_application_returns_updated_application():
         "date_applied": "2026-06-22"
     }
 
-    create_response = client.post("/applications", json=create_payload)
+    create_response = client.post(
+        "/applications",
+        json=create_payload,
+        headers=headers
+    )
+
     application_id = create_response.json()["id"]
 
     update_payload = {
@@ -160,7 +230,8 @@ def test_update_application_returns_updated_application():
 
     response = client.put(
         f"/applications/{application_id}",
-        json=update_payload
+        json=update_payload,
+        headers=headers
     )
 
     assert response.status_code == 200
@@ -172,7 +243,10 @@ def test_update_application_returns_updated_application():
     assert data["status"] == update_payload["status"]
     assert data["date_applied"] == update_payload["date_applied"]
 
+
 def test_delete_application_returns_success_message():
+    headers = get_auth_headers("delete-app@example.com")
+
     payload = {
         "company": "Delete Company",
         "position": "Delete Position",
@@ -180,10 +254,18 @@ def test_delete_application_returns_success_message():
         "date_applied": "2026-06-22"
     }
 
-    create_response = client.post("/applications", json=payload)
+    create_response = client.post(
+        "/applications",
+        json=payload,
+        headers=headers
+    )
+
     application_id = create_response.json()["id"]
 
-    response = client.delete(f"/applications/{application_id}")
+    response = client.delete(
+        f"/applications/{application_id}",
+        headers=headers
+    )
 
     assert response.status_code == 200
     assert response.json() == {
@@ -193,7 +275,7 @@ def test_delete_application_returns_success_message():
 
 def test_register_user_returns_created_user():
     payload = {
-        "email": "register-test@example.com",
+        "email": "register-unique-test@example.com",
         "password": "password123"
     }
 
@@ -217,7 +299,13 @@ def test_login_user_returns_access_token():
 
     client.post("/auth/register", json=payload)
 
-    response = client.post("/auth/login", json=payload)
+    response = client.post(
+        "/auth/login",
+        data={
+            "username": payload["email"],
+            "password": payload["password"]
+        }
+    )
 
     assert response.status_code == 200
 
