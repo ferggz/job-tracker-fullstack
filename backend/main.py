@@ -4,7 +4,9 @@ from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 from database import SessionLocal, engine, Base
-from models import Application, Reminder
+from models import Application, Reminder, User
+from schemas import UserCreate, UserLogin
+from security import hash_password, verify_password, create_access_token
 
 app = FastAPI()
 
@@ -213,3 +215,52 @@ def get_reminders(db: Session = Depends(get_db)):
         }
         for reminder in reminders
     ]
+
+
+@app.post("/auth/register")
+def register_user(
+    user: UserCreate,
+    db: Session = Depends(get_db)
+):
+    existing_user = db.query(User).filter(
+        User.email == user.email
+    ).first()
+
+    if existing_user:
+        raise HTTPException(status_code=400, detail="Email already registered")
+
+    new_user = User(
+        email=user.email,
+        hashed_password=hash_password(user.password)
+    )
+
+    db.add(new_user)
+    db.commit()
+    db.refresh(new_user)
+
+    return {"id": new_user.id, "email": new_user.email}
+
+
+@app.post("/auth/login")
+def login_user(
+    user: UserLogin,
+    db: Session = Depends(get_db)
+):
+    existing_user = db.query(User).filter(
+        User.email == user.email
+    ).first()
+
+    if existing_user is None:
+        raise HTTPException(status_code=401, detail="Invalid credentials")
+
+    if not verify_password(user.password, existing_user.hashed_password):
+        raise HTTPException(status_code=401, detail="Invalid credentials")
+
+    token = create_access_token(
+        {"sub": existing_user.email}
+    )
+
+    return {
+        "access_token": token,
+        "token_type": "bearer"
+    }
