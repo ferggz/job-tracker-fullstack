@@ -4,6 +4,14 @@ from sqlalchemy.orm import relationship
 from database import Base
 
 
+class User(Base):
+    __tablename__ = "users"
+
+    id = Column(Integer, primary_key=True)
+    email = Column(Text, unique=True, nullable=False)
+    hashed_password = Column(Text, nullable=False)
+
+
 class Application(Base):
     __tablename__ = "applications"
 
