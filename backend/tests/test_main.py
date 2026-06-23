@@ -110,3 +110,31 @@ def test_complete_reminder_marks_reminder_as_completed():
 
     assert response.status_code == 200
     assert response.json()["completed"] is True
+
+
+def test_delete_reminder_returns_success_message():
+    application_payload = {
+        "company": "Delete Reminder Company",
+        "position": "Backend Developer",
+        "status": "Applied",
+        "date_applied": "2026-06-22"
+    }
+
+    application_response = client.post("/applications", json=application_payload)
+    application_id = application_response.json()["id"]
+
+    reminder_payload = {
+        "application_id": application_id,
+        "title": "Delete me",
+        "due_date": "2026-07-01",
+        "completed": False,
+        "notes": ""
+    }
+
+    reminder_response = client.post("/reminders", json=reminder_payload)
+    reminder_id = reminder_response.json()["id"]
+
+    response = client.delete(f"/reminders/{reminder_id}")
+
+    assert response.status_code == 200
+    assert response.json() == {"message": "Reminder deleted"}
