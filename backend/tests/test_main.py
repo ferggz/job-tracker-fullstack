@@ -11,3 +11,9 @@ def test_home_returns_api_message():
 
     assert response.status_code == 200
     assert response.json() == {"message": "Job Tracker API"}
+
+def test_get_applications_returns_list():
+    response = client.get("/applications")
+
+    assert response.status_code == 200
+    assert isinstance(response.json(), list)
