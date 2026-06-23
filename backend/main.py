@@ -199,4 +199,17 @@ def delete_reminder(
 @app.get("/reminders")
 def get_reminders(db: Session = Depends(get_db)):
     reminders = db.query(Reminder).all()
-    return reminders
+
+    return [
+        {
+            "id": reminder.id,
+            "application_id": reminder.application_id,
+            "title": reminder.title,
+            "due_date": reminder.due_date,
+            "completed": reminder.completed,
+            "notes": reminder.notes,
+            "company": reminder.application.company,
+            "position": reminder.application.position
+        }
+        for reminder in reminders
+    ]

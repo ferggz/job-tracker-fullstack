@@ -275,6 +275,59 @@ button:disabled {
 .reminder-overdue span {
   color: #b00020;
 }
+
+.upcoming-reminders {
+  background: #111827;
+  border: 1px solid #1e293b;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 24px;
+}
+
+.upcoming-reminders h2 {
+  margin-top: 0;
+}
+
+.upcoming-reminders ul {
+  padding-left: 1.2rem;
+  margin-bottom: 0;
+}
+
+.upcoming-reminders li {
+  margin-bottom: 0.5rem;
+  color: #cbd5e1;
+}
+
+.upcoming-list {
+  list-style: none;
+  padding: 0;
+}
+
+.upcoming-item {
+  background: #0f172a;
+  border: 1px solid #334155;
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 10px;
+}
+
+.upcoming-item strong {
+  display: block;
+  margin-bottom: 4px;
+}
+
+.upcoming-item small {
+  color: #94a3b8;
+}
+
+.upcoming-overdue {
+  border-color: #b91c1c;
+}
+
+.upcoming-overdue strong {
+  color: #ef4444;
+}
+
 @media (max-width: 700px) {
   .hero h1 {
     font-size: 36px;

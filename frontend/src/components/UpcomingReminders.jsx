@@ -21,14 +21,36 @@ function UpcomingReminders() {
     return null
   }
 
+function isOverdue(reminder) {
+  const today = new Date()
+  const dueDate = new Date(reminder.due_date)
+
+  today.setHours(0, 0, 0, 0)
+  dueDate.setHours(0, 0, 0, 0)
+
+  return dueDate < today
+}
+
   return (
     <section className="upcoming-reminders">
       <h2>Upcoming reminders</h2>
 
-      <ul>
+      <ul className="upcoming-list">
         {reminders.map(reminder => (
-          <li key={reminder.id}>
-            {reminder.title} - {reminder.due_date}
+          <li
+            key={reminder.id}
+            className={`upcoming-item ${
+              isOverdue(reminder) ? "upcoming-overdue" : ""
+            }`}
+          >
+            <strong>
+              {isOverdue(reminder) ? "🔴 " : ""}
+              {reminder.title}
+            </strong>
+
+            <div>{reminder.company}</div>
+
+            <small>Due: {reminder.due_date}</small>
           </li>
         ))}
       </ul>
