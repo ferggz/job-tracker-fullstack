@@ -2,6 +2,8 @@ from fastapi.testclient import TestClient
 
 from main import app
 
+from uuid import uuid4
+
 
 client = TestClient(app)
 
@@ -275,7 +277,7 @@ def test_delete_application_returns_success_message():
 
 def test_register_user_returns_created_user():
     payload = {
-        "email": "register-unique-test@example.com",
+        "email": f"register-{uuid4()}@example.com",
         "password": "password123"
     }
 
