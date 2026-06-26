@@ -20,6 +20,7 @@ class Application(Base):
     position = Column(Text, nullable=False)
     status = Column(Text, nullable=False)
     date_applied = Column(Text, nullable=False)
+    cv_filename = Column(Text, nullable=True)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=True)
 
     user = relationship("User")
