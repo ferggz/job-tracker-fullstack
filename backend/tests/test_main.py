@@ -1,8 +1,11 @@
+from io import BytesIO
+from uuid import uuid4
+
 from fastapi.testclient import TestClient
 
 from main import app
 
-from uuid import uuid4
+
 
 
 client = TestClient(app)
@@ -315,3 +318,39 @@ def test_login_user_returns_access_token():
 
     assert "access_token" in data
     assert data["token_type"] == "bearer"
+
+
+def test_upload_application_cv_returns_filename():
+    headers = get_auth_headers("upload-cv@example.com")
+
+    application_payload = {
+        "company": "CV Test Company",
+        "position": "Python Developer",
+        "status": "Applied",
+        "date_applied": "2026-06-26"
+    }
+
+    application_response = client.post(
+        "/applications",
+        json=application_payload,
+        headers=headers
+    )
+
+    application_id = application_response.json()["id"]
+
+    pdf_content = BytesIO(b"%PDF-1.4 fake pdf content")
+
+    response = client.post(
+        f"/applications/{application_id}/cv",
+        files={
+            "file": ("test_cv.pdf", pdf_content, "application/pdf")
+        },
+        headers=headers
+    )
+
+    assert response.status_code == 200
+
+    data = response.json()
+
+    assert data["message"] == "CV uploaded successfully"
+    assert data["cv_filename"] == f"application_{application_id}_cv.pdf"

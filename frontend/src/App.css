@@ -328,6 +328,22 @@ button:disabled {
   color: #ef4444;
 }
 
+.cv-upload {
+  margin-top: 0.75rem;
+}
+
+.cv-upload label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  color: #cbd5e1;
+  font-size: 0.9rem;
+}
+
+.cv-upload input {
+  max-width: 260px;
+}
+
 @media (max-width: 700px) {
   .hero h1 {
     font-size: 36px;

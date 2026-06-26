@@ -10,6 +10,10 @@ from schemas import UserCreate, UserLogin
 from security import hash_password, verify_password, create_access_token
 from auth import get_current_user
 
+import os
+from fastapi import File, UploadFile
+from fastapi.responses import FileResponse
+
 
 app = FastAPI()
 
@@ -47,6 +51,10 @@ def get_db():
         yield db
     finally:
         db.close()
+
+
+UPLOAD_DIR = "uploads"
+os.makedirs(UPLOAD_DIR, exist_ok=True)
 
 
 @app.get("/")
@@ -304,3 +312,63 @@ def get_me(
         "id": current_user.id,
         "email": current_user.email
     }
+
+
+@app.post("/applications/{application_id}/cv")
+def upload_application_cv(
+    application_id: int,
+    file: UploadFile = File(...),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    application = db.query(Application).filter(
+        Application.id == application_id,
+        Application.user_id == current_user.id
+    ).first()
+
+    if application is None:
+        raise HTTPException(status_code=404, detail="Application not found")
+
+    if file.content_type != "application/pdf":
+        raise HTTPException(status_code=400, detail="Only PDF files are allowed")
+
+    filename = f"application_{application_id}_cv.pdf"
+    file_path = os.path.join(UPLOAD_DIR, filename)
+
+    with open(file_path, "wb") as buffer:
+        buffer.write(file.file.read())
+
+    application.cv_filename = filename
+
+    db.commit()
+    db.refresh(application)
+
+    return {
+        "message": "CV uploaded successfully",
+        "cv_filename": application.cv_filename
+    }
+
+
+@app.get("/applications/{application_id}/cv")
+def get_application_cv(
+    application_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    application = db.query(Application).filter(
+        Application.id == application_id,
+        Application.user_id == current_user.id
+    ).first()
+
+    if application is None:
+        raise HTTPException(status_code=404, detail="Application not found")
+
+    if application.cv_filename is None:
+        raise HTTPException(status_code=404, detail="CV not found")
+
+    file_path = os.path.join(UPLOAD_DIR, application.cv_filename)
+
+    if not os.path.exists(file_path):
+        raise HTTPException(status_code=404, detail="CV file not found")
+
+    return FileResponse(file_path, media_type="application/pdf")

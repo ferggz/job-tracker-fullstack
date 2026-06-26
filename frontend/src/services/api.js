@@ -122,3 +122,27 @@ export async function loginUser(user) {
 
   return response.json()
 }
+
+export async function uploadApplicationCv(applicationId, file) {
+  const formData = new FormData()
+  formData.append("file", file)
+
+  const response = await fetch(`${API_URL}/${applicationId}/cv`, {
+    method: "POST",
+    headers: getAuthHeaders(),
+    body: formData
+  })
+
+  return response.json()
+}
+
+export async function openApplicationCv(applicationId) {
+  const response = await fetch(`${API_URL}/${applicationId}/cv`, {
+    headers: getAuthHeaders()
+  })
+
+  const blob = await response.blob()
+  const url = window.URL.createObjectURL(blob)
+
+  window.open(url, "_blank")
+}
