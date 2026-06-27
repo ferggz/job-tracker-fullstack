@@ -137,12 +137,20 @@ export async function uploadApplicationCv(applicationId, file) {
 }
 
 export async function openApplicationCv(applicationId) {
+  const newWindow = window.open("", "_blank")
+
   const response = await fetch(`${API_URL}/${applicationId}/cv`, {
     headers: getAuthHeaders()
   })
 
+  if (!response.ok) {
+    newWindow.close()
+    alert("Could not open CV")
+    return
+  }
+
   const blob = await response.blob()
   const url = window.URL.createObjectURL(blob)
 
-  window.open(url, "_blank")
+  newWindow.location.href = url
 }
