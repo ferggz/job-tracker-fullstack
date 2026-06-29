@@ -3,6 +3,8 @@ from uuid import uuid4
 
 from fastapi.testclient import TestClient
 
+from unittest.mock import patch
+
 from main import app
 
 
@@ -340,13 +342,14 @@ def test_upload_application_cv_returns_filename():
 
     pdf_content = BytesIO(b"%PDF-1.4 fake pdf content")
 
-    response = client.post(
-        f"/applications/{application_id}/cv",
-        files={
-            "file": ("test_cv.pdf", pdf_content, "application/pdf")
-        },
-        headers=headers
-    )
+    with patch("main.upload_file"):
+        response = client.post(
+            f"/applications/{application_id}/cv",
+            files={
+                "file": ("test_cv.pdf", pdf_content, "application/pdf")
+            },
+            headers=headers
+        )
 
     assert response.status_code == 200
 
