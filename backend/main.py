@@ -1,4 +1,5 @@
-from fastapi import FastAPI, Depends, HTTPException
+from fastapi import FastAPI, Depends, HTTPException, Response
+from fastapi import File, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import OAuth2PasswordRequestForm
 from pydantic import BaseModel
@@ -9,10 +10,9 @@ from models import Application, Reminder, User
 from schemas import UserCreate, UserLogin
 from security import hash_password, verify_password, create_access_token
 from auth import get_current_user
+from storage import download_file, upload_file
 
 import os
-from fastapi import File, UploadFile
-from fastapi.responses import FileResponse
 
 
 app = FastAPI()
@@ -332,11 +332,14 @@ def upload_application_cv(
     if file.content_type != "application/pdf":
         raise HTTPException(status_code=400, detail="Only PDF files are allowed")
 
-    filename = f"application_{application_id}_cv.pdf"
-    file_path = os.path.join(UPLOAD_DIR, filename)
+    filename = f"user_{current_user.id}/application_{application_id}_cv.pdf"
+    file_content = file.file.read()
 
-    with open(file_path, "wb") as buffer:
-        buffer.write(file.file.read())
+    upload_file(
+        filename,
+        file_content,
+        "application/pdf"
+    )
 
     application.cv_filename = filename
 
@@ -366,9 +369,12 @@ def get_application_cv(
     if application.cv_filename is None:
         raise HTTPException(status_code=404, detail="CV not found")
 
-    file_path = os.path.join(UPLOAD_DIR, application.cv_filename)
+    file_content = download_file(application.cv_filename)
 
-    if not os.path.exists(file_path):
-        raise HTTPException(status_code=404, detail="CV file not found")
-
-    return FileResponse(file_path, media_type="application/pdf")
+    return Response(
+        content=file_content,
+        media_type="application/pdf",
+        headers={
+            "Content-Disposition": "inline; filename=cv.pdf"
+        }
+    )

@@ -353,4 +353,5 @@ def test_upload_application_cv_returns_filename():
     data = response.json()
 
     assert data["message"] == "CV uploaded successfully"
-    assert data["cv_filename"] == f"application_{application_id}_cv.pdf"
+    assert data["cv_filename"].endswith(f"application_{application_id}_cv.pdf")
+    assert data["cv_filename"].startswith("user_")

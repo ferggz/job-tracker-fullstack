@@ -1,20 +1,19 @@
 import ReminderList from "./ReminderList"
 import { openApplicationCv, uploadApplicationCv } from "../services/api"
 
-async function handleCvUpload(event) {
-  const file = event.target.files[0]
+function ApplicationCard({ application, handleEdit, handleDelete }) {
+  async function handleCvUpload(event) {
+    const file = event.target.files[0]
 
-  if (!file) {
-    return
+    if (!file) {
+      return
+    }
+
+    await uploadApplicationCv(application.id, file)
+
+    alert("CV uploaded successfully")
   }
 
-  await uploadApplicationCv(application.id, file)
-
-  alert("CV uploaded successfully")
-}
-
-
-function ApplicationCard({ application, handleEdit, handleDelete }) {
   return (
     <div className="application-card">
       <h2>{application.company}</h2>
@@ -40,7 +39,7 @@ function ApplicationCard({ application, handleEdit, handleDelete }) {
 
       <span className={`status-badge ${application.status.toLowerCase()}`}>
         {application.status}
-        </span>
+      </span>
 
       <ReminderList applicationId={application.id} />
 
