@@ -8,12 +8,31 @@ function getAuthHeaders() {
   return token ? { Authorization: `Bearer ${token}` } : {}
 }
 
+function handleUnauthorized() {
+  localStorage.removeItem("accessToken")
+  window.location.href = "/login"
+}
+
+async function parseResponse(response) {
+  if (response.status === 401) {
+    handleUnauthorized()
+    throw new Error("Session expired")
+  }
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => null)
+    throw new Error(error?.detail || "Request failed")
+  }
+
+  return response.json()
+}
+
 export async function getApplications() {
   const response = await fetch(API_URL, {
     headers: getAuthHeaders()
   })
 
-  return response.json()
+  return parseResponse(response)
 }
 
 export async function createApplication(application) {
@@ -26,7 +45,7 @@ export async function createApplication(application) {
     body: JSON.stringify(application)
   })
 
-  return response.json()
+  return parseResponse(response)
 }
 
 export async function updateApplication(id, application) {
@@ -39,14 +58,16 @@ export async function updateApplication(id, application) {
     body: JSON.stringify(application)
   })
 
-  return response.json()
+  return parseResponse(response)
 }
 
 export async function deleteApplication(id) {
-  await fetch(`${API_URL}/${id}`, {
+  const response = await fetch(`${API_URL}/${id}`, {
     method: "DELETE",
     headers: getAuthHeaders()
   })
+
+  return parseResponse(response)
 }
 
 export async function getApplicationReminders(applicationId) {
@@ -54,7 +75,7 @@ export async function getApplicationReminders(applicationId) {
     headers: getAuthHeaders()
   })
 
-  return response.json()
+  return parseResponse(response)
 }
 
 export async function createReminder(reminder) {
@@ -67,7 +88,7 @@ export async function createReminder(reminder) {
     body: JSON.stringify(reminder)
   })
 
-  return response.json()
+  return parseResponse(response)
 }
 
 export async function completeReminder(reminderId) {
@@ -76,14 +97,16 @@ export async function completeReminder(reminderId) {
     headers: getAuthHeaders()
   })
 
-  return response.json()
+  return parseResponse(response)
 }
 
 export async function deleteReminder(reminderId) {
-  await fetch(`${REMINDERS_URL}/${reminderId}`, {
+  const response = await fetch(`${REMINDERS_URL}/${reminderId}`, {
     method: "DELETE",
     headers: getAuthHeaders()
   })
+
+  return parseResponse(response)
 }
 
 export async function getReminders() {
@@ -91,7 +114,7 @@ export async function getReminders() {
     headers: getAuthHeaders()
   })
 
-  return response.json()
+  return parseResponse(response)
 }
 
 export async function registerUser(user) {
@@ -103,7 +126,7 @@ export async function registerUser(user) {
     body: JSON.stringify(user)
   })
 
-  return response.json()
+  return parseResponse(response)
 }
 
 export async function loginUser(user) {
@@ -120,7 +143,7 @@ export async function loginUser(user) {
     body: formData
   })
 
-  return response.json()
+  return parseResponse(response)
 }
 
 export async function uploadApplicationCv(applicationId, file) {
@@ -133,7 +156,7 @@ export async function uploadApplicationCv(applicationId, file) {
     body: formData
   })
 
-  return response.json()
+  return parseResponse(response)
 }
 
 export async function openApplicationCv(applicationId) {
@@ -142,6 +165,12 @@ export async function openApplicationCv(applicationId) {
   const response = await fetch(`${API_URL}/${applicationId}/cv`, {
     headers: getAuthHeaders()
   })
+
+  if (response.status === 401) {
+    handleUnauthorized()
+    newWindow.close()
+    return
+  }
 
   if (!response.ok) {
     newWindow.close()
