@@ -322,39 +322,51 @@ def test_login_user_returns_access_token():
     assert data["token_type"] == "bearer"
 
 
-def test_upload_application_cv_returns_filename():
-    headers = get_auth_headers("upload-cv@example.com")
+@patch("main.upload_file")
+def test_upload_profile_primary_cv_returns_filename(mock_upload_file):
+    headers = get_auth_headers("primary-cv@example.com")
 
-    application_payload = {
-        "company": "CV Test Company",
-        "position": "Python Developer",
-        "status": "Applied",
-        "date_applied": "2026-06-26"
-    }
-
-    application_response = client.post(
-        "/applications",
-        json=application_payload,
+    response = client.post(
+        "/profile/cv/primary",
+        files={
+            "file": (
+                "cv.pdf",
+                b"%PDF-1.4 fake pdf content",
+                "application/pdf"
+            )
+        },
         headers=headers
     )
-
-    application_id = application_response.json()["id"]
-
-    pdf_content = BytesIO(b"%PDF-1.4 fake pdf content")
-
-    with patch("main.upload_file"):
-        response = client.post(
-            f"/applications/{application_id}/cv",
-            files={
-                "file": ("test_cv.pdf", pdf_content, "application/pdf")
-            },
-            headers=headers
-        )
 
     assert response.status_code == 200
 
     data = response.json()
 
-    assert data["message"] == "CV uploaded successfully"
-    assert data["cv_filename"].endswith(f"application_{application_id}_cv.pdf")
+    assert data["cv_type"] == "primary"
+    assert data["cv_filename"].endswith("primary_cv.pdf")
+    assert data["cv_filename"].startswith("user_")
+
+
+@patch("main.upload_file")
+def test_upload_profile_secondary_cv_returns_filename(mock_upload_file):
+    headers = get_auth_headers("secondary-cv@example.com")
+
+    response = client.post(
+        "/profile/cv/secondary",
+        files={
+            "file": (
+                "cv.pdf",
+                b"%PDF-1.4 fake pdf content",
+                "application/pdf"
+            )
+        },
+        headers=headers
+    )
+
+    assert response.status_code == 200
+
+    data = response.json()
+
+    assert data["cv_type"] == "secondary"
+    assert data["cv_filename"].endswith("secondary_cv.pdf")
     assert data["cv_filename"].startswith("user_")

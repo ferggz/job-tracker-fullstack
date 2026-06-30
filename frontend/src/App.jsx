@@ -5,6 +5,7 @@ import LoginPage from "./pages/LoginPage";
 import ApplicationsPage from "./pages/ApplicationsPage";
 import ProtectedRoute from "./routes/ProtectedRoute";
 import RemindersPage from "./pages/RemindersPage";
+import ProfilePage from "./pages/ProfilePage";
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(
@@ -44,6 +45,15 @@ function App() {
         element={
           <ProtectedRoute isAuthenticated={isAuthenticated}>
             <RemindersPage onLogout={handleLogout} />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/profile"
+        element={
+          <ProtectedRoute isAuthenticated={isAuthenticated}>
+            <ProfilePage onLogout={handleLogout} />
           </ProtectedRoute>
         }
       />

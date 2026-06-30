@@ -12,6 +12,7 @@ function MainLayout({ onLogout, children }) {
         <div>
           <NavLink to="/applications">Applications</NavLink>
           <NavLink to="/reminders">Reminders</NavLink>
+          <NavLink to="/profile">Profile</NavLink>
         </div>
 
         <button onClick={onLogout}>Logout</button>

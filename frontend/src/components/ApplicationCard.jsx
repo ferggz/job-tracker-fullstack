@@ -1,19 +1,6 @@
 import ReminderList from "./ReminderList"
-import { openApplicationCv, uploadApplicationCv } from "../services/api"
 
 function ApplicationCard({ application, handleEdit, handleDelete }) {
-  async function handleCvUpload(event) {
-    const file = event.target.files[0]
-
-    if (!file) {
-      return
-    }
-
-    await uploadApplicationCv(application.id, file)
-
-    alert("CV uploaded successfully")
-  }
-
   return (
     <div className="application-card">
       <h2>{application.company}</h2>
@@ -21,21 +8,6 @@ function ApplicationCard({ application, handleEdit, handleDelete }) {
       <p>{application.position}</p>
 
       <p>Applied on: {application.date_applied}</p>
-
-      <div className="cv-upload">
-        <label>
-          Upload CV:
-          <input
-            type="file"
-            accept="application/pdf"
-            onChange={handleCvUpload}
-          />
-        </label>
-
-        <button type="button" onClick={() => openApplicationCv(application.id)}>
-          View CV
-        </button>
-      </div>
 
       <span className={`status-badge ${application.status.toLowerCase()}`}>
         {application.status}

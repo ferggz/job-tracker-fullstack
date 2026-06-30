@@ -10,6 +10,8 @@ class User(Base):
     id = Column(Integer, primary_key=True)
     email = Column(Text, unique=True, nullable=False)
     hashed_password = Column(Text, nullable=False)
+    primary_cv_filename = Column(Text, nullable=True)
+    secondary_cv_filename = Column(Text, nullable=True)
 
 
 class Application(Base):
@@ -20,7 +22,6 @@ class Application(Base):
     position = Column(Text, nullable=False)
     status = Column(Text, nullable=False)
     date_applied = Column(Text, nullable=False)
-    cv_filename = Column(Text, nullable=True)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=True)
 
     user = relationship("User")
