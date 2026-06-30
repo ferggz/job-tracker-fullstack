@@ -1,3 +1,5 @@
+import { NavLink } from "react-router-dom";
+
 function MainLayout({ onLogout, children }) {
   return (
     <main className="app">
@@ -6,7 +8,14 @@ function MainLayout({ onLogout, children }) {
         <p>Track your job applications from one simple dashboard.</p>
       </section>
 
-      <button onClick={onLogout}>Logout</button>
+      <nav className="main-nav">
+        <div>
+          <NavLink to="/applications">Applications</NavLink>
+          <NavLink to="/reminders">Reminders</NavLink>
+        </div>
+
+        <button onClick={onLogout}>Logout</button>
+      </nav>
 
       {children}
     </main>

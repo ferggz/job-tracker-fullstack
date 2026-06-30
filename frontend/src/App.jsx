@@ -4,6 +4,7 @@ import "./App.css";
 import LoginPage from "./pages/LoginPage";
 import ApplicationsPage from "./pages/ApplicationsPage";
 import ProtectedRoute from "./routes/ProtectedRoute";
+import RemindersPage from "./pages/RemindersPage";
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(
@@ -37,6 +38,15 @@ function App() {
       />
 
       <Route path="*" element={<Navigate to="/applications" replace />} />
+
+      <Route
+        path="/reminders"
+        element={
+          <ProtectedRoute isAuthenticated={isAuthenticated}>
+            <RemindersPage onLogout={handleLogout} />
+          </ProtectedRoute>
+        }
+      />
     </Routes>
   );
 }
