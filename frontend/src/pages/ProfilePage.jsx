@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import MainLayout from "../layouts/MainLayout";
-import { getProfile, openProfileCv, uploadProfileCv } from "../services/api";
+import { getProfile, openProfileCv, uploadProfileCv, deleteProfileCv } from "../services/api";
 
 function ProfilePage() {
   const [primaryCv, setPrimaryCv] = useState(null);
@@ -51,6 +51,25 @@ function ProfilePage() {
     );
   }
 
+  async function handleDelete(cvType) {
+    const confirmed = window.confirm(`Delete ${cvType} CV?`);
+
+    if (!confirmed) {
+      return;
+    }
+
+    try {
+      await deleteProfileCv(cvType);
+      await fetchProfile();
+
+      setMessage(`${cvType} CV deleted successfully.`);
+      setError("");
+    } catch {
+      setError("Could not delete CV.");
+      setMessage("");
+    }
+  }
+
   return (
     <MainLayout>
       <section>
@@ -70,7 +89,8 @@ function ProfilePage() {
           <h3>Primary CV</h3>
 
           <p>
-            Status: {profile?.primary_cv_uploaded ? "Uploaded" : "Not uploaded"}
+            Status:{" "}
+            {profile?.primary_cv_uploaded ? "Uploaded" : "Not uploaded"}
           </p>
 
           <input
@@ -80,12 +100,22 @@ function ProfilePage() {
           />
 
           <button onClick={() => handleUpload("primary", primaryCv)}>
-            {profile?.primary_cv_uploaded ? "Replace primary CV" : "Upload primary CV"}
+            {profile?.primary_cv_uploaded
+              ? "Replace primary CV"
+              : "Upload primary CV"}
           </button>
 
-          <button onClick={() => openProfileCv("primary")}>
-            View primary CV
-          </button>
+          {profile?.primary_cv_uploaded && (
+            <>
+              <button onClick={() => openProfileCv("primary")}>
+                View primary CV
+              </button>
+
+              <button onClick={() => handleDelete("primary")}>
+                Delete primary CV
+              </button>
+            </>
+          )}
         </div>
 
         <div className="cv-section">
@@ -108,9 +138,17 @@ function ProfilePage() {
               : "Upload secondary CV"}
           </button>
 
-          <button onClick={() => openProfileCv("secondary")}>
-            View secondary CV
-          </button>
+          {profile?.secondary_cv_uploaded && (
+            <>
+              <button onClick={() => openProfileCv("secondary")}>
+                View secondary CV
+              </button>
+
+              <button onClick={() => handleDelete("secondary")}>
+                Delete secondary CV
+              </button>
+            </>
+          )}
         </div>
       </section>
     </MainLayout>
