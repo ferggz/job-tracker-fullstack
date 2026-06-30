@@ -146,11 +146,11 @@ export async function loginUser(user) {
   return parseResponse(response)
 }
 
-export async function uploadApplicationCv(applicationId, file) {
+export async function uploadProfileCv(cvType, file) {
   const formData = new FormData()
   formData.append("file", file)
 
-  const response = await fetch(`${API_URL}/${applicationId}/cv`, {
+  const response = await fetch(`${BASE_URL}/profile/cv/${cvType}`, {
     method: "POST",
     headers: getAuthHeaders(),
     body: formData
@@ -159,10 +159,10 @@ export async function uploadApplicationCv(applicationId, file) {
   return parseResponse(response)
 }
 
-export async function openApplicationCv(applicationId) {
+export async function openProfileCv(cvType) {
   const newWindow = window.open("", "_blank")
 
-  const response = await fetch(`${API_URL}/${applicationId}/cv`, {
+  const response = await fetch(`${BASE_URL}/profile/cv/${cvType}`, {
     headers: getAuthHeaders()
   })
 

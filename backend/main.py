@@ -314,25 +314,42 @@ def get_me(
     }
 
 
-@app.post("/applications/{application_id}/cv")
-def upload_application_cv(
-    application_id: int,
+def get_cv_filename(current_user: User, cv_type: str):
+    if cv_type == "primary":
+        return current_user.primary_cv_filename
+
+    if cv_type == "secondary":
+        return current_user.secondary_cv_filename
+
+    raise HTTPException(status_code=400, detail="Invalid CV type")
+
+
+def set_cv_filename(current_user: User, cv_type: str, filename: str):
+    if cv_type == "primary":
+        current_user.primary_cv_filename = filename
+        return
+
+    if cv_type == "secondary":
+        current_user.secondary_cv_filename = filename
+        return
+
+    raise HTTPException(status_code=400, detail="Invalid CV type")
+
+
+@app.post("/profile/cv/{cv_type}")
+def upload_profile_cv(
+    cv_type: str,
     file: UploadFile = File(...),
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    application = db.query(Application).filter(
-        Application.id == application_id,
-        Application.user_id == current_user.id
-    ).first()
-
-    if application is None:
-        raise HTTPException(status_code=404, detail="Application not found")
+    if cv_type not in ["primary", "secondary"]:
+        raise HTTPException(status_code=400, detail="Invalid CV type")
 
     if file.content_type != "application/pdf":
         raise HTTPException(status_code=400, detail="Only PDF files are allowed")
 
-    filename = f"user_{current_user.id}/application_{application_id}_cv.pdf"
+    filename = f"user_{current_user.id}/{cv_type}_cv.pdf"
     file_content = file.file.read()
 
     upload_file(
@@ -341,40 +358,36 @@ def upload_application_cv(
         "application/pdf"
     )
 
-    application.cv_filename = filename
+    user = db.query(User).filter(User.id == current_user.id).first()
+
+    set_cv_filename(user, cv_type, filename)
 
     db.commit()
-    db.refresh(application)
+    db.refresh(user)
 
     return {
         "message": "CV uploaded successfully",
-        "cv_filename": application.cv_filename
+        "cv_type": cv_type,
+        "cv_filename": filename
     }
 
 
-@app.get("/applications/{application_id}/cv")
-def get_application_cv(
-    application_id: int,
-    db: Session = Depends(get_db),
+@app.get("/profile/cv/{cv_type}")
+def get_profile_cv(
+    cv_type: str,
     current_user: User = Depends(get_current_user)
 ):
-    application = db.query(Application).filter(
-        Application.id == application_id,
-        Application.user_id == current_user.id
-    ).first()
+    filename = get_cv_filename(current_user, cv_type)
 
-    if application is None:
-        raise HTTPException(status_code=404, detail="Application not found")
-
-    if application.cv_filename is None:
+    if filename is None:
         raise HTTPException(status_code=404, detail="CV not found")
 
-    file_content = download_file(application.cv_filename)
+    file_content = download_file(filename)
 
     return Response(
         content=file_content,
         media_type="application/pdf",
         headers={
-            "Content-Disposition": "inline; filename=cv.pdf"
+            "Content-Disposition": f"inline; filename={cv_type}_cv.pdf"
         }
     )
