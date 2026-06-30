@@ -344,6 +344,27 @@ button:disabled {
   max-width: 260px;
 }
 
+.main-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.main-nav div {
+  display: flex;
+  gap: 1rem;
+}
+
+.main-nav a {
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.main-nav a.active {
+  text-decoration: underline;
+}
+
 @media (max-width: 700px) {
   .hero h1 {
     font-size: 36px;
