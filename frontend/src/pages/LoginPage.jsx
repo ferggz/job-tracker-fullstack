@@ -1,14 +1,16 @@
 import { useNavigate } from "react-router-dom";
 import AuthForm from "../components/AuthForm";
+import { useAuth } from "../context/AuthContext";
 
-function LoginPage({ onLogin }) {
+function LoginPage() {
   const navigate = useNavigate();
+  const { login } = useAuth();
 
   return (
     <main className="app">
       <AuthForm
         onLogin={() => {
-          onLogin();
+          login();
           navigate("/applications");
         }}
       />

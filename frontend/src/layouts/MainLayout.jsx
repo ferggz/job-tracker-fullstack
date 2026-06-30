@@ -1,6 +1,9 @@
 import { NavLink } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
-function MainLayout({ onLogout, children }) {
+function MainLayout({ children }) {
+  const { logout } = useAuth();
+
   return (
     <main className="app">
       <section className="hero">
@@ -15,7 +18,7 @@ function MainLayout({ onLogout, children }) {
           <NavLink to="/profile">Profile</NavLink>
         </div>
 
-        <button onClick={onLogout}>Logout</button>
+        <button onClick={logout}>Logout</button>
       </nav>
 
       {children}
