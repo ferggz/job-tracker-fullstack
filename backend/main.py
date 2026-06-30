@@ -314,6 +314,18 @@ def get_me(
     }
 
 
+@app.get("/profile")
+def get_profile(
+    current_user: User = Depends(get_current_user)
+):
+    return {
+        "id": current_user.id,
+        "email": current_user.email,
+        "primary_cv_uploaded": current_user.primary_cv_filename is not None,
+        "secondary_cv_uploaded": current_user.secondary_cv_filename is not None
+    }
+
+
 def get_cv_filename(current_user: User, cv_type: str):
     if cv_type == "primary":
         return current_user.primary_cv_filename

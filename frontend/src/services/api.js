@@ -183,3 +183,11 @@ export async function openProfileCv(cvType) {
 
   newWindow.location.href = url
 }
+
+export async function getProfile() {
+  const response = await fetch(`${BASE_URL}/profile`, {
+    headers: getAuthHeaders()
+  })
+
+  return parseResponse(response)
+}

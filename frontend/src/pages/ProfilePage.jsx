@@ -1,12 +1,30 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import MainLayout from "../layouts/MainLayout";
-import { openProfileCv, uploadProfileCv } from "../services/api";
+import { getProfile, openProfileCv, uploadProfileCv } from "../services/api";
 
 function ProfilePage() {
   const [primaryCv, setPrimaryCv] = useState(null);
   const [secondaryCv, setSecondaryCv] = useState(null);
+  const [profile, setProfile] = useState(null);
+  const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
+
+  useEffect(() => {
+    fetchProfile();
+  }, []);
+
+  async function fetchProfile() {
+    try {
+      const data = await getProfile();
+      setProfile(data);
+      setError("");
+    } catch {
+      setError("Could not load profile.");
+    } finally {
+      setLoading(false);
+    }
+  }
 
   async function handleUpload(cvType, file) {
     if (!file) {
@@ -15,6 +33,8 @@ function ProfilePage() {
 
     try {
       await uploadProfileCv(cvType, file);
+      await fetchProfile();
+
       setMessage(`${cvType} CV uploaded successfully.`);
       setError("");
     } catch {
@@ -23,17 +43,35 @@ function ProfilePage() {
     }
   }
 
+  if (loading) {
+    return (
+      <MainLayout>
+        <p>Loading profile...</p>
+      </MainLayout>
+    );
+  }
+
   return (
     <MainLayout>
       <section>
         <h2>Profile</h2>
         <p>Manage your CVs.</p>
 
+        {profile && (
+          <p>
+            Email: <strong>{profile.email}</strong>
+          </p>
+        )}
+
         {message && <p>{message}</p>}
         {error && <p className="error-message">{error}</p>}
 
         <div className="cv-section">
           <h3>Primary CV</h3>
+
+          <p>
+            Status: {profile?.primary_cv_uploaded ? "Uploaded" : "Not uploaded"}
+          </p>
 
           <input
             type="file"
@@ -42,7 +80,7 @@ function ProfilePage() {
           />
 
           <button onClick={() => handleUpload("primary", primaryCv)}>
-            Upload primary CV
+            {profile?.primary_cv_uploaded ? "Replace primary CV" : "Upload primary CV"}
           </button>
 
           <button onClick={() => openProfileCv("primary")}>
@@ -53,6 +91,11 @@ function ProfilePage() {
         <div className="cv-section">
           <h3>Secondary CV</h3>
 
+          <p>
+            Status:{" "}
+            {profile?.secondary_cv_uploaded ? "Uploaded" : "Not uploaded"}
+          </p>
+
           <input
             type="file"
             accept="application/pdf"
@@ -60,7 +103,9 @@ function ProfilePage() {
           />
 
           <button onClick={() => handleUpload("secondary", secondaryCv)}>
-            Upload secondary CV
+            {profile?.secondary_cv_uploaded
+              ? "Replace secondary CV"
+              : "Upload secondary CV"}
           </button>
 
           <button onClick={() => openProfileCv("secondary")}>
