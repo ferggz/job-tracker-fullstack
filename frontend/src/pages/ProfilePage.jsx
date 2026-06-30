@@ -2,7 +2,7 @@ import { useState } from "react";
 import MainLayout from "../layouts/MainLayout";
 import { openProfileCv, uploadProfileCv } from "../services/api";
 
-function ProfilePage({ onLogout }) {
+function ProfilePage() {
   const [primaryCv, setPrimaryCv] = useState(null);
   const [secondaryCv, setSecondaryCv] = useState(null);
   const [message, setMessage] = useState("");
@@ -24,7 +24,7 @@ function ProfilePage({ onLogout }) {
   }
 
   return (
-    <MainLayout onLogout={onLogout}>
+    <MainLayout>
       <section>
         <h2>Profile</h2>
         <p>Manage your CVs.</p>

@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
 import "./App.css";
 import LoginPage from "./pages/LoginPage";
@@ -8,43 +7,26 @@ import RemindersPage from "./pages/RemindersPage";
 import ProfilePage from "./pages/ProfilePage";
 
 function App() {
-  const [isAuthenticated, setIsAuthenticated] = useState(
-    Boolean(localStorage.getItem("accessToken")),
-  );
-
-  function handleLogout() {
-    localStorage.removeItem("accessToken");
-    setIsAuthenticated(false);
-  }
-
   return (
     <Routes>
       <Route path="/" element={<Navigate to="/applications" replace />} />
 
-      <Route
-        path="/login"
-        element={<LoginPage onLogin={() => setIsAuthenticated(true)} />}
-      />
+      <Route path="/login" element={<LoginPage />} />
 
       <Route
         path="/applications"
         element={
-          <ProtectedRoute isAuthenticated={isAuthenticated}>
-            <ApplicationsPage
-              isAuthenticated={isAuthenticated}
-              onLogout={handleLogout}
-            />
+          <ProtectedRoute>
+            <ApplicationsPage />
           </ProtectedRoute>
         }
       />
 
-      <Route path="*" element={<Navigate to="/applications" replace />} />
-
       <Route
         path="/reminders"
         element={
-          <ProtectedRoute isAuthenticated={isAuthenticated}>
-            <RemindersPage onLogout={handleLogout} />
+          <ProtectedRoute>
+            <RemindersPage />
           </ProtectedRoute>
         }
       />
@@ -52,11 +34,13 @@ function App() {
       <Route
         path="/profile"
         element={
-          <ProtectedRoute isAuthenticated={isAuthenticated}>
-            <ProfilePage onLogout={handleLogout} />
+          <ProtectedRoute>
+            <ProfilePage />
           </ProtectedRoute>
         }
       />
+
+      <Route path="*" element={<Navigate to="/applications" replace />} />
     </Routes>
   );
 }

@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import MainLayout from "../layouts/MainLayout";
 import { completeReminder, deleteReminder, getReminders } from "../services/api";
 
-function RemindersPage({ onLogout }) {
+function RemindersPage() {
   const [reminders, setReminders] = useState([]);
   const [error, setError] = useState("");
 
@@ -51,7 +51,7 @@ function RemindersPage({ onLogout }) {
   }
 
   return (
-    <MainLayout onLogout={onLogout}>
+    <MainLayout>
       <section>
         <h2>Reminders</h2>
 

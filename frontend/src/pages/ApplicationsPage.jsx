@@ -3,6 +3,7 @@ import ApplicationList from "../components/ApplicationList";
 import ApplicationForm from "../components/ApplicationForm";
 import UpcomingReminders from "../components/UpcomingReminders";
 import MainLayout from "../layouts/MainLayout";
+import { useAuth } from "../context/AuthContext";
 import {
   getApplications,
   createApplication,
@@ -10,7 +11,7 @@ import {
   deleteApplication,
 } from "../services/api";
 
-function ApplicationsPage({ isAuthenticated, onLogout }) {
+function ApplicationsPage() {
   const [applications, setApplications] = useState([]);
   const [company, setCompany] = useState("");
   const [position, setPosition] = useState("");
@@ -26,6 +27,7 @@ function ApplicationsPage({ isAuthenticated, onLogout }) {
   const [dateApplied, setDateApplied] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const { isAuthenticated } = useAuth();
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -155,7 +157,7 @@ function ApplicationsPage({ isAuthenticated, onLogout }) {
   ).length;
 
   return (
-    <MainLayout onLogout={onLogout}>
+    <MainLayout>
       {error && <p className="error-message">{error}</p>}
 
       <section className="stats">
