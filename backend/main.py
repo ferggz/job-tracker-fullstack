@@ -10,7 +10,7 @@ from models import Application, Reminder, User
 from schemas import UserCreate, UserLogin
 from security import hash_password, verify_password, create_access_token
 from auth import get_current_user
-from storage import download_file, upload_file
+from storage import delete_file, download_file, upload_file
 
 import os
 
@@ -364,11 +364,60 @@ def upload_profile_cv(
     filename = f"user_{current_user.id}/{cv_type}_cv.pdf"
     file_content = file.file.read()
 
-    upload_file(
-        filename,
-        file_content,
-        "application/pdf"
+    upload_file(filename, file_content, "application/pdf")
+
+    user = db.query(User).filter(User.id == current_user.id).first()
+
+    set_cv_filename(user, cv_type, filename)
+
+    db.commit()
+    db.refresh(user)
+
+    return {
+        "message": "CV uploaded successfully",
+        "cv_type": cv_type,
+        "cv_filename": filename
+    }
+
+
+@app.get("/profile/cv/{cv_type}")
+def get_profile_cv(
+    cv_type: str,
+    current_user: User = Depends(get_current_user)
+):
+    filename = get_cv_filename(current_user, cv_type)
+
+    if filename is None:
+        raise HTTPException(status_code=404, detail="CV not found")
+
+    file_content = download_file(filename)
+
+    return Response(
+        content=file_content,
+        media_type="application/pdf",
+        headers={
+            "Content-Disposition": f"inline; filename={cv_type}_cv.pdf"
+        }
     )
+
+
+@app.post("/profile/cv/{cv_type}")
+def upload_profile_cv(
+    cv_type: str,
+    file: UploadFile = File(...),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    if cv_type not in ["primary", "secondary"]:
+        raise HTTPException(status_code=400, detail="Invalid CV type")
+
+    if file.content_type != "application/pdf":
+        raise HTTPException(status_code=400, detail="Only PDF files are allowed")
+
+    filename = f"user_{current_user.id}/{cv_type}_cv.pdf"
+    file_content = file.file.read()
+
+    upload_file(filename, file_content, "application/pdf")
 
     user = db.query(User).filter(User.id == current_user.id).first()
 
@@ -416,10 +465,14 @@ def delete_profile_cv(
 
     user = db.query(User).filter(User.id == current_user.id).first()
 
-    if cv_type == "primary":
-        user.primary_cv_filename = None
-    else:
-        user.secondary_cv_filename = None
+    filename = get_cv_filename(user, cv_type)
+
+    if filename is None:
+        raise HTTPException(status_code=404, detail="CV not found")
+
+    delete_file(filename)
+
+    set_cv_filename(user, cv_type, None)
 
     db.commit()
 

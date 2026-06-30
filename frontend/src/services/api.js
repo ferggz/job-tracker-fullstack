@@ -179,7 +179,8 @@ export async function openProfileCv(cvType) {
   }
 
   const blob = await response.blob()
-  const url = window.URL.createObjectURL(blob)
+  const pdfBlob = new Blob([blob], { type: "application/pdf" })
+  const url = window.URL.createObjectURL(pdfBlob)
 
   newWindow.location.href = url
 }

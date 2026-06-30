@@ -35,6 +35,29 @@ def download_file(path: str) -> bytes:
         },
     )
 
+    print("DOWNLOAD STATUS:", response.status_code)
+    print("DOWNLOAD HEADERS:", response.headers)
+    print("DOWNLOAD LENGTH:", len(response.content))
+
+    response.raise_for_status()
+
+    return response.content
+
+
+def delete_file(path: str) -> None:
+    url = f"{SUPABASE_URL}/storage/v1/object/{BUCKET_NAME}/{path}"
+
+    response = requests.delete(
+        url,
+        headers={
+            "Authorization": f"Bearer {SUPABASE_SECRET_KEY}",
+            "apikey": SUPABASE_SECRET_KEY,
+        },
+    )
+
+
+    response.raise_for_status()
+
     response.raise_for_status()
 
     return response.content
