@@ -191,3 +191,12 @@ export async function getProfile() {
 
   return parseResponse(response)
 }
+
+export async function deleteProfileCv(cvType) {
+  const response = await fetch(`${BASE_URL}/profile/cv/${cvType}`, {
+    method: "DELETE",
+    headers: getAuthHeaders()
+  })
+
+  return parseResponse(response)
+}

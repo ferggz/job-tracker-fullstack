@@ -403,3 +403,27 @@ def get_profile_cv(
             "Content-Disposition": f"inline; filename={cv_type}_cv.pdf"
         }
     )
+
+
+@app.delete("/profile/cv/{cv_type}")
+def delete_profile_cv(
+    cv_type: str,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    if cv_type not in ["primary", "secondary"]:
+        raise HTTPException(status_code=400, detail="Invalid CV type")
+
+    user = db.query(User).filter(User.id == current_user.id).first()
+
+    if cv_type == "primary":
+        user.primary_cv_filename = None
+    else:
+        user.secondary_cv_filename = None
+
+    db.commit()
+
+    return {
+        "message": "CV deleted successfully",
+        "cv_type": cv_type
+    }
