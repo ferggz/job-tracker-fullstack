@@ -2,13 +2,13 @@ import { useEffect, useState } from "react";
 import ApplicationList from "../components/ApplicationList";
 import ApplicationForm from "../components/ApplicationForm";
 import UpcomingReminders from "../components/UpcomingReminders";
+import MainLayout from "../layouts/MainLayout";
 import {
   getApplications,
   createApplication,
   updateApplication,
   deleteApplication,
 } from "../services/api";
-
 
 function ApplicationsPage({ isAuthenticated, onLogout }) {
   const [applications, setApplications] = useState([]);
@@ -155,14 +155,7 @@ function ApplicationsPage({ isAuthenticated, onLogout }) {
   ).length;
 
   return (
-    <main className="app">
-      <section className="hero">
-        <h1>Job Tracker</h1>
-        <p>Track your job applications from one simple dashboard.</p>
-      </section>
-
-      <button onClick={onLogout}>Logout</button>
-
+    <MainLayout onLogout={onLogout}>
       {error && <p className="error-message">{error}</p>}
 
       <section className="stats">
@@ -238,7 +231,7 @@ function ApplicationsPage({ isAuthenticated, onLogout }) {
         handleEdit={handleEdit}
         handleDelete={handleDelete}
       />
-    </main>
+    </MainLayout>
   );
 }
 
