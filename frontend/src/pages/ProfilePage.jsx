@@ -1,13 +1,18 @@
 import { useEffect, useState } from "react";
+import { toast } from "react-hot-toast";
 import MainLayout from "../layouts/MainLayout";
-import { getProfile, openProfileCv, uploadProfileCv, deleteProfileCv } from "../services/api";
+import {
+  deleteProfileCv,
+  getProfile,
+  openProfileCv,
+  uploadProfileCv,
+} from "../services/api";
 
 function ProfilePage() {
   const [primaryCv, setPrimaryCv] = useState(null);
   const [secondaryCv, setSecondaryCv] = useState(null);
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [message, setMessage] = useState("");
   const [error, setError] = useState("");
 
   useEffect(() => {
@@ -28,27 +33,29 @@ function ProfilePage() {
 
   async function handleUpload(cvType, file) {
     if (!file) {
+      toast.error("Please select a PDF file.");
       return;
     }
+
+    const replacing =
+      cvType === "primary"
+        ? profile?.primary_cv_uploaded
+        : profile?.secondary_cv_uploaded;
 
     try {
       await uploadProfileCv(cvType, file);
       await fetchProfile();
 
-      setMessage(`${cvType} CV uploaded successfully.`);
+      toast.success(
+        replacing
+          ? `${cvType} CV replaced successfully.`
+          : `${cvType} CV uploaded successfully.`,
+      );
+
       setError("");
     } catch {
-      setError("Could not upload CV.");
-      setMessage("");
+      toast.error("Could not upload CV.");
     }
-  }
-
-  if (loading) {
-    return (
-      <MainLayout>
-        <p>Loading profile...</p>
-      </MainLayout>
-    );
   }
 
   async function handleDelete(cvType) {
@@ -62,12 +69,19 @@ function ProfilePage() {
       await deleteProfileCv(cvType);
       await fetchProfile();
 
-      setMessage(`${cvType} CV deleted successfully.`);
+      toast.success(`${cvType} CV deleted successfully.`);
       setError("");
     } catch {
-      setError("Could not delete CV.");
-      setMessage("");
+      toast.error("Could not delete CV.");
     }
+  }
+
+  if (loading) {
+    return (
+      <MainLayout>
+        <p>Loading profile...</p>
+      </MainLayout>
+    );
   }
 
   return (
@@ -82,7 +96,6 @@ function ProfilePage() {
           </p>
         )}
 
-        {message && <p>{message}</p>}
         {error && <p className="error-message">{error}</p>}
 
         <div className="cv-section">
