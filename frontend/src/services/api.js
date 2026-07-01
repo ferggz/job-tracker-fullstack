@@ -1,3 +1,5 @@
+import { toast } from "react-hot-toast";
+
 const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8000"
 const API_URL = `${BASE_URL}/applications`
 const REMINDERS_URL = `${BASE_URL}/reminders`
@@ -174,7 +176,7 @@ export async function openProfileCv(cvType) {
 
   if (!response.ok) {
     newWindow.close()
-    alert("Could not open CV")
+    toast.error("Could not open CV");
     return
   }
 

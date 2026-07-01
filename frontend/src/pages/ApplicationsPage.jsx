@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { toast } from "react-hot-toast";
 import ApplicationList from "../components/ApplicationList";
 import ApplicationForm from "../components/ApplicationForm";
 import UpcomingReminders from "../components/UpcomingReminders";
@@ -26,7 +27,6 @@ function ApplicationsPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [dateApplied, setDateApplied] = useState("");
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
   const { isAuthenticated } = useAuth();
 
   useEffect(() => {
@@ -44,9 +44,8 @@ function ApplicationsPage() {
     try {
       const data = await getApplications();
       setApplications(data);
-      setError("");
-    } catch {
-      setError("Could not connect to the server. Please try again later.");
+    } catch (error) {
+      console.error(error);
     }
   }
 
@@ -72,18 +71,19 @@ function ApplicationsPage() {
         );
 
         setEditingId(null);
+        toast.success("Application updated.");
       } else {
         const newApplication = await createApplication(application);
         setApplications([...applications, newApplication]);
+        toast.success("Application created.");
       }
 
       setCompany("");
       setPosition("");
       setStatus("Applied");
       setDateApplied("");
-      setError("");
     } catch {
-      setError("Something went wrong while saving the application.");
+      toast.error("Could not save application.");
     } finally {
       setLoading(false);
     }
@@ -98,11 +98,17 @@ function ApplicationsPage() {
       return;
     }
 
-    await deleteApplication(id);
+    try {
+      await deleteApplication(id);
 
-    setApplications(
-      applications.filter((application) => application.id !== id),
-    );
+      setApplications(
+        applications.filter((application) => application.id !== id),
+      );
+
+      toast.success("Application deleted.");
+    } catch {
+      toast.error("Could not delete application.");
+    }
   }
 
   function handleEdit(application) {
@@ -158,8 +164,6 @@ function ApplicationsPage() {
 
   return (
     <MainLayout>
-      {error && <p className="error-message">{error}</p>}
-
       <section className="stats">
         <div>
           <strong>{totalApplications}</strong>

@@ -1,48 +1,52 @@
-import { useState } from "react"
-import { loginUser, registerUser } from "../services/api"
+import { useState } from "react";
+import { toast } from "react-hot-toast";
+import { loginUser, registerUser } from "../services/api";
 
 function AuthForm({ onLogin }) {
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const [isRegistering, setIsRegistering] = useState(false)
-  const [error, setError] = useState("")
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [isRegistering, setIsRegistering] = useState(false);
 
   async function handleSubmit(event) {
-    event.preventDefault()
+    event.preventDefault();
 
-    const user = { email, password }
+    const user = { email, password };
 
-    const data = isRegistering
-      ? await registerUser(user)
-      : await loginUser(user)
+    try {
+      const data = isRegistering
+        ? await registerUser(user)
+        : await loginUser(user);
 
-    if (data.access_token) {
-      localStorage.setItem("accessToken", data.access_token)
-      onLogin()
-      return
+      if (data.access_token) {
+        localStorage.setItem("accessToken", data.access_token);
+        toast.success("Welcome back!");
+        onLogin();
+        return;
+      }
+
+      if (isRegistering) {
+        setIsRegistering(false);
+        toast.success("Account created successfully. Please log in.");
+      }
+    } catch {
+      toast.error(
+        isRegistering
+          ? "Could not create account."
+          : "Invalid email or password.",
+      );
     }
-
-    if (isRegistering) {
-      setIsRegistering(false)
-      setError("User created. Please log in.")
-      return
-    }
-
-    setError("Authentication failed.")
   }
 
   return (
     <section className="auth-card">
       <h1>{isRegistering ? "Create account" : "Login"}</h1>
 
-      {error && <p className="error-message">{error}</p>}
-
       <form onSubmit={handleSubmit} className="application-form">
         <input
           type="email"
           placeholder="Email"
           value={email}
-          onChange={event => setEmail(event.target.value)}
+          onChange={(event) => setEmail(event.target.value)}
           required
         />
 
@@ -50,7 +54,7 @@ function AuthForm({ onLogin }) {
           type="password"
           placeholder="Password"
           value={password}
-          onChange={event => setPassword(event.target.value)}
+          onChange={(event) => setPassword(event.target.value)}
           required
         />
 
@@ -63,7 +67,7 @@ function AuthForm({ onLogin }) {
         {isRegistering ? "Already have an account?" : "Create account"}
       </button>
     </section>
-  )
+  );
 }
 
-export default AuthForm
+export default AuthForm;

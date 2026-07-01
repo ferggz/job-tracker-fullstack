@@ -1,72 +1,93 @@
-import { useEffect, useState } from "react"
+import { useEffect, useState } from "react";
+import { toast } from "react-hot-toast";
 import {
-  createReminder,
-  getApplicationReminders,
   completeReminder,
-  deleteReminder
-} from "../services/api"
+  createReminder,
+  deleteReminder,
+  getApplicationReminders,
+} from "../services/api";
 
 function ReminderList({ applicationId }) {
-  const [reminders, setReminders] = useState([])
-  const [title, setTitle] = useState("")
-  const [dueDate, setDueDate] = useState("")
-  const [notes, setNotes] = useState("")
+  const [reminders, setReminders] = useState([]);
+  const [title, setTitle] = useState("");
+  const [dueDate, setDueDate] = useState("");
+  const [notes, setNotes] = useState("");
 
   useEffect(() => {
-    fetchReminders()
-  }, [applicationId])
+    fetchReminders();
+  }, [applicationId]);
 
   async function fetchReminders() {
-    const data = await getApplicationReminders(applicationId)
-    setReminders(data)
+    try {
+      const data = await getApplicationReminders(applicationId);
+      setReminders(data);
+    } catch {
+      console.error("Could not load reminders.");
+    }
   }
 
   async function handleSubmit(event) {
-    event.preventDefault()
+    event.preventDefault();
 
-    const newReminder = await createReminder({
-      application_id: applicationId,
-      title,
-      due_date: dueDate,
-      completed: false,
-      notes
-    })
+    try {
+      const newReminder = await createReminder({
+        application_id: applicationId,
+        title,
+        due_date: dueDate,
+        completed: false,
+        notes,
+      });
 
-    setReminders([...reminders, newReminder])
-    setTitle("")
-    setDueDate("")
-    setNotes("")
+      setReminders([...reminders, newReminder]);
+      setTitle("");
+      setDueDate("");
+      setNotes("");
+
+      toast.success("Reminder created.");
+    } catch {
+      toast.error("Could not create reminder.");
+    }
   }
 
   async function handleComplete(reminderId) {
-    await completeReminder(reminderId)
+    try {
+      await completeReminder(reminderId);
 
-    setReminders(
-      reminders.map(reminder =>
-        reminder.id === reminderId
-          ? { ...reminder, completed: true }
-          : reminder
-      )
-    )
+      setReminders(
+        reminders.map((reminder) =>
+          reminder.id === reminderId
+            ? { ...reminder, completed: true }
+            : reminder,
+        ),
+      );
+
+      toast.success("Reminder completed.");
+    } catch {
+      toast.error("Could not complete reminder.");
+    }
   }
 
   async function handleDelete(reminderId) {
-    await deleteReminder(reminderId)
+    try {
+      await deleteReminder(reminderId);
 
-    setReminders(
-      reminders.filter(reminder => reminder.id !== reminderId)
-    )
+      setReminders(reminders.filter((reminder) => reminder.id !== reminderId));
+
+      toast.success("Reminder deleted.");
+    } catch {
+      toast.error("Could not delete reminder.");
+    }
   }
 
   function isOverdue(reminder) {
-  const today = new Date()
-  const dueDate = new Date(reminder.due_date)
+    const today = new Date();
+    const dueDateValue = new Date(reminder.due_date);
 
-  today.setHours(0, 0, 0, 0)
-  dueDate.setHours(0, 0, 0, 0)
+    today.setHours(0, 0, 0, 0);
+    dueDateValue.setHours(0, 0, 0, 0);
 
-  return dueDate < today && !reminder.completed
-}
+    return dueDateValue < today && !reminder.completed;
+  }
 
   return (
     <div className="reminders">
@@ -76,14 +97,22 @@ function ReminderList({ applicationId }) {
         <p>No reminders</p>
       ) : (
         <ul>
-          {reminders.map(reminder => (
+          {reminders.map((reminder) => (
             <li
               key={reminder.id}
-              className={isOverdue(reminder) ? "reminder-overdue reminder-item" : "reminder-item"}
+              className={
+                isOverdue(reminder)
+                  ? "reminder-overdue reminder-item"
+                  : "reminder-item"
+              }
             >
               <div className="reminder-content">
                 <span className={reminder.completed ? "reminder-completed" : ""}>
-                  {reminder.completed ? "[Done]" : isOverdue(reminder) ? "[Overdue]" : "[Pending]"}{" "}
+                  {reminder.completed
+                    ? "[Done]"
+                    : isOverdue(reminder)
+                      ? "[Overdue]"
+                      : "[Pending]"}{" "}
                   {reminder.title} - {reminder.due_date}
                 </span>
 
@@ -113,14 +142,14 @@ function ReminderList({ applicationId }) {
           type="text"
           placeholder="Reminder title"
           value={title}
-          onChange={event => setTitle(event.target.value)}
+          onChange={(event) => setTitle(event.target.value)}
           required
         />
 
         <input
           type="date"
           value={dueDate}
-          onChange={event => setDueDate(event.target.value)}
+          onChange={(event) => setDueDate(event.target.value)}
           required
         />
 
@@ -128,13 +157,13 @@ function ReminderList({ applicationId }) {
           type="text"
           placeholder="Notes"
           value={notes}
-          onChange={event => setNotes(event.target.value)}
+          onChange={(event) => setNotes(event.target.value)}
         />
 
         <button type="submit">Add reminder</button>
       </form>
     </div>
-  )
+  );
 }
 
-export default ReminderList
+export default ReminderList;
