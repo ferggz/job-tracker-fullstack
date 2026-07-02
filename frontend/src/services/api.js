@@ -162,21 +162,17 @@ export async function uploadProfileCv(cvType, file) {
 }
 
 export async function openProfileCv(cvType) {
-  const newWindow = window.open("", "_blank")
-
   const response = await fetch(`${BASE_URL}/profile/cv/${cvType}`, {
     headers: getAuthHeaders()
   })
 
   if (response.status === 401) {
     handleUnauthorized()
-    newWindow.close()
     return
   }
 
   if (!response.ok) {
-    newWindow.close()
-    toast.error("Could not open CV");
+    toast.error("Could not open CV")
     return
   }
 
@@ -184,7 +180,7 @@ export async function openProfileCv(cvType) {
   const pdfBlob = new Blob([blob], { type: "application/pdf" })
   const url = window.URL.createObjectURL(pdfBlob)
 
-  newWindow.location.href = url
+  window.location.href = url
 }
 
 export async function getProfile() {
