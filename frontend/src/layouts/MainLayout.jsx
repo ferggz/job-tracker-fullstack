@@ -5,24 +5,29 @@ function MainLayout({ children }) {
   const { logout } = useAuth();
 
   return (
-    <main className="app">
-      <section className="hero">
-        <h1>Job Tracker</h1>
-        <p>Track your job applications from one simple dashboard.</p>
-      </section>
+    <div className="app-shell">
+      <aside className="sidebar">
+        <div className="sidebar-brand">
+          <span className="brand-mark">JT</span>
+          <div>
+            <h1>Job Tracker</h1>
+            <p>Application dashboard</p>
+          </div>
+        </div>
 
-      <nav className="main-nav">
-        <div>
+        <nav className="sidebar-nav">
           <NavLink to="/applications">Applications</NavLink>
           <NavLink to="/reminders">Reminders</NavLink>
           <NavLink to="/profile">Profile</NavLink>
-        </div>
+        </nav>
 
-        <button onClick={logout}>Logout</button>
-      </nav>
+        <button className="logout-button" onClick={logout}>
+          Logout
+        </button>
+      </aside>
 
-      {children}
-    </main>
+      <main className="app-content">{children}</main>
+    </div>
   );
 }
 
