@@ -28,11 +28,11 @@ function AuthForm({ onLogin }) {
         setIsRegistering(false);
         toast.success("Account created successfully. Please log in.");
       }
-    } catch {
+    } catch (error) {
       toast.error(
         isRegistering
-          ? "Could not create account."
-          : "Invalid email or password.",
+          ? "Could not create account. Please try again."
+          : "Connecting to the server. Please try again in a few seconds."
       );
     }
   }
