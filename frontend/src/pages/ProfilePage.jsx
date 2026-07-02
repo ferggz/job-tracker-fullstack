@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { toast } from "react-hot-toast";
+import ConfirmModal from "../components/ConfirmModal";
 import MainLayout from "../layouts/MainLayout";
 import {
   deleteProfileCv,
@@ -12,6 +13,7 @@ function ProfilePage() {
   const [primaryCv, setPrimaryCv] = useState(null);
   const [secondaryCv, setSecondaryCv] = useState(null);
   const [profile, setProfile] = useState(null);
+  const [cvToDelete, setCvToDelete] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -59,18 +61,13 @@ function ProfilePage() {
   }
 
   async function handleDelete(cvType) {
-    const confirmed = window.confirm(`Delete ${cvType} CV?`);
-
-    if (!confirmed) {
-      return;
-    }
-
     try {
       await deleteProfileCv(cvType);
       await fetchProfile();
 
       toast.success(`${cvType} CV deleted successfully.`);
       setError("");
+      setCvToDelete(null);
     } catch {
       toast.error("Could not delete CV.");
     }
@@ -124,7 +121,10 @@ function ProfilePage() {
                 View primary CV
               </button>
 
-              <button onClick={() => handleDelete("primary")}>
+              <button
+                className="button-danger"
+                onClick={() => setCvToDelete("primary")}
+              >
                 Delete primary CV
               </button>
             </>
@@ -157,13 +157,25 @@ function ProfilePage() {
                 View secondary CV
               </button>
 
-              <button onClick={() => handleDelete("secondary")}>
+              <button
+                className="button-danger"
+                onClick={() => setCvToDelete("secondary")}
+              >
                 Delete secondary CV
               </button>
             </>
           )}
         </div>
       </section>
+
+      {cvToDelete && (
+        <ConfirmModal
+          title={`Delete ${cvToDelete} CV?`}
+          message="This action cannot be undone."
+          onCancel={() => setCvToDelete(null)}
+          onConfirm={() => handleDelete(cvToDelete)}
+        />
+      )}
     </MainLayout>
   );
 }

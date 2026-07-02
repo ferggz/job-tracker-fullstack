@@ -32,7 +32,7 @@ function isOverdue(reminder) {
 }
 
   return (
-    <section className="upcoming-reminders">
+    <section className="card upcoming-reminders">
       <h2>Upcoming reminders</h2>
 
       <ul className="upcoming-list">

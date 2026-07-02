@@ -15,6 +15,36 @@ select {
   font: inherit;
 }
 
+.card {
+  background: #111827;
+  border: 1px solid #1e293b;
+  border-radius: 18px;
+  padding: 20px;
+}
+
+.section-title {
+  margin: 0 0 18px;
+  font-size: 18px;
+}
+
+.button-danger {
+  background: #991b1b;
+}
+
+.button-danger:hover {
+  background: #b91c1c;
+  box-shadow: 0 8px 20px rgba(185, 28, 28, 0.25);
+}
+
+.button-secondary {
+  background: #1e293b;
+}
+
+.button-secondary:hover {
+  background: #334155;
+  box-shadow: none;
+}
+
 .app-shell {
   min-height: 100vh;
   display: grid;
@@ -68,12 +98,23 @@ select {
 }
 
 .sidebar-nav a {
+  display: flex;
+  align-items: center;
+  gap: 12px;
   color: #cbd5e1;
   text-decoration: none;
   font-weight: 600;
   padding: 12px 14px;
   border-radius: 10px;
-  transition: background 0.2s;
+  transition: background 0.2s ease;
+}
+
+.logout-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-top: auto;
 }
 
 .sidebar-nav a:hover {
@@ -83,15 +124,6 @@ select {
 .sidebar-nav a.active {
   background: #2563eb;
   color: white;
-}
-
-.logout-button {
-  margin-top: auto;
-  background: #1e293b;
-}
-
-.logout-button:hover {
-  background: #334155;
 }
 
 .app-content {
@@ -104,9 +136,12 @@ select {
   background: #111827;
   border: 1px solid #1e293b;
   border-radius: 12px;
-  padding: 20px;
+  padding: 24px;
   margin-bottom: 16px;
   transition: border-color 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
 }
 
 .application-card:hover {
@@ -131,22 +166,25 @@ select {
 
 button {
   border: none;
-  border-radius: 8px;
-  padding: 10px 16px;
+  border-radius: 10px;
+  padding: 11px 18px;
   background: #2563eb;
   color: white;
   cursor: pointer;
+  font-weight: 600;
   transition:
-    opacity 0.2s ease,
-    transform 0.1s ease;
+    background 0.2s ease,
+    transform 0.15s ease,
+    box-shadow 0.2s ease;
 }
 
 button:hover {
-  opacity: 0.9;
+  background: #1d4ed8;
+  box-shadow: 0 8px 20px rgba(37, 99, 235, 0.25);
 }
 
 button:active {
-  transform: scale(0.98);
+  transform: scale(0.97);
 }
 
 button:disabled {
@@ -154,23 +192,15 @@ button:disabled {
   cursor: not-allowed;
 }
 
-.edit-button {
-  background: #2563eb;
-}
-
-.delete-button {
-  background: #991b1b;
-}
-
-.delete-button:hover {
-  background: #b91c1c;
-}
-
 .application-form {
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(160px, 1fr)) auto;
   gap: 12px;
-  margin-bottom: 32px;
-  flex-wrap: wrap;
+  background: #111827;
+  border: 1px solid #1e293b;
+  border-radius: 16px;
+  padding: 18px;
+  margin-bottom: 0;
 }
 
 .application-form button {
@@ -178,12 +208,25 @@ button:disabled {
 }
 
 .application-form input,
-.application-form select {
-  background: #111827;
-  border: 1px solid #1e293b;
-  border-radius: 8px;
-  padding: 12px;
+.application-form select,
+.filters input,
+.filters select,
+.reminder-form input {
+  background: #0f172a;
+  border: 1px solid #334155;
+  border-radius: 10px;
+  padding: 12px 14px;
   color: white;
+  transition: border-color 0.2s ease;
+}
+
+.application-form input:focus,
+.application-form select:focus,
+.filters input:focus,
+.filters select:focus,
+.reminder-form input:focus {
+  outline: none;
+  border-color: #2563eb;
 }
 
 .application-form input {
@@ -193,6 +236,22 @@ button:disabled {
 
 .application-form select {
   min-width: 160px;
+}
+
+.application-form-card {
+  margin-bottom: 32px;
+}
+
+.form-card-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.form-card-header h2 {
+  margin: 0;
+  font-size: 18px;
 }
 
 .empty-state {
@@ -219,26 +278,46 @@ button:disabled {
 }
 
 .stats div {
-  background: #111827;
+  background: linear-gradient(180deg, #111827, #0f172a);
   border: 1px solid #1e293b;
-  border-radius: 12px;
-  padding: 20px;
+  border-radius: 16px;
+  padding: 24px;
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.stats div:hover {
+  transform: translateY(-3px);
+  border-color: #2563eb;
 }
 
 .stats strong {
   display: block;
-  font-size: 32px;
+  font-size: 42px;
+  font-weight: 700;
+  margin-bottom: 6px;
 }
 
 .stats span {
   color: #94a3b8;
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
 }
 
 .filters {
   display: flex;
   gap: 12px;
-  margin-bottom: 24px;
+  margin-bottom: 0;
   flex-wrap: wrap;
+}
+
+.filters-card {
+  margin-bottom: 24px;
+}
+
+.filters-card h2 {
+  margin: 0 0 18px;
+  font-size: 18px;
 }
 
 .filters input,
@@ -342,10 +421,6 @@ button:disabled {
 }
 
 .upcoming-reminders {
-  background: #111827;
-  border: 1px solid #1e293b;
-  border-radius: 12px;
-  padding: 20px;
   margin-bottom: 24px;
 }
 
@@ -409,6 +484,106 @@ button:disabled {
   max-width: 260px;
 }
 
+.application-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.application-date {
+  color: #94a3b8;
+  margin-bottom: 16px;
+}
+
+.status-badge {
+  border-radius: 999px;
+  padding: 6px 10px;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.status-badge.applied {
+  background: #1e3a8a;
+  color: #bfdbfe;
+}
+
+.status-badge.interview {
+  background: #854d0e;
+  color: #fde68a;
+}
+
+.status-badge.offer {
+  background: #14532d;
+  color: #bbf7d0;
+}
+
+.status-badge.rejected {
+  background: #7f1d1d;
+  color: #fecaca;
+}
+
+.application-company {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.application-company h2 {
+  margin: 0;
+}
+
+.application-position {
+  color: #cbd5e1;
+  margin: 0;
+}
+
+.application-date {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #94a3b8;
+}
+
+.card-buttons button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(2, 6, 23, 0.75);
+  display: grid;
+  place-items: center;
+  z-index: 50;
+}
+
+.confirm-modal {
+  width: min(420px, 92%);
+  background: #111827;
+  border: 1px solid #1e293b;
+  border-radius: 18px;
+  padding: 24px;
+}
+
+.confirm-modal h2 {
+  margin: 0 0 8px;
+}
+
+.confirm-modal p {
+  color: #94a3b8;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 24px;
+}
+
 @media (max-width: 700px) {
   .app-shell {
     display: block;
@@ -439,7 +614,7 @@ button:disabled {
   }
 
   .application-form {
-    flex-direction: column;
+    grid-template-columns: 1fr;
   }
 
   .application-form input,

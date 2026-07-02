@@ -183,34 +183,38 @@ function ApplicationsPage() {
 
       <UpcomingReminders />
 
-      <section className="filters">
-        <input
-          type="text"
-          placeholder="Search by company or position"
-          value={searchTerm}
-          onChange={(event) => setSearchTerm(event.target.value)}
-        />
+      <section className="card filters-card">
+        <h2 className="section-title">Applications</h2>
 
-        <select
-          value={filterStatus}
-          onChange={(event) => setFilterStatus(event.target.value)}
-        >
-          <option value="All">All statuses</option>
-          <option value="Offer">Offer</option>
-          <option value="Interview">Interview</option>
-          <option value="Applied">Applied</option>
-          <option value="Rejected">Rejected</option>
-        </select>
+        <div className="filters">
+          <input
+            type="text"
+            placeholder="Search by company or position"
+            value={searchTerm}
+            onChange={(event) => setSearchTerm(event.target.value)}
+          />
 
-        <select
-          value={sortBy}
-          onChange={(event) => setSortBy(event.target.value)}
-        >
-          <option value="recent">Most recent</option>
-          <option value="oldest">Oldest</option>
-          <option value="company">Company A-Z</option>
-          <option value="status">Status</option>
-        </select>
+          <select
+            value={filterStatus}
+            onChange={(event) => setFilterStatus(event.target.value)}
+          >
+            <option value="All">All statuses</option>
+            <option value="Offer">Offer</option>
+            <option value="Interview">Interview</option>
+            <option value="Applied">Applied</option>
+            <option value="Rejected">Rejected</option>
+          </select>
+
+          <select
+            value={sortBy}
+            onChange={(event) => setSortBy(event.target.value)}
+          >
+            <option value="recent">Most recent</option>
+            <option value="oldest">Oldest</option>
+            <option value="company">Company A-Z</option>
+            <option value="status">Status</option>
+          </select>
+        </div>
       </section>
 
       <p className="results-count">
