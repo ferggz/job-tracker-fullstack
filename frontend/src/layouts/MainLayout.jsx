@@ -1,3 +1,9 @@
+import {
+  BriefcaseBusiness,
+  Clock3,
+  LogOut,
+  User,
+} from "lucide-react";
 import { NavLink } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
@@ -5,24 +11,42 @@ function MainLayout({ children }) {
   const { logout } = useAuth();
 
   return (
-    <main className="app">
-      <section className="hero">
-        <h1>Job Tracker</h1>
-        <p>Track your job applications from one simple dashboard.</p>
-      </section>
+    <div className="app-shell">
+      <aside className="sidebar">
+        <div className="sidebar-brand">
+          <span className="brand-mark">JT</span>
 
-      <nav className="main-nav">
-        <div>
-          <NavLink to="/applications">Applications</NavLink>
-          <NavLink to="/reminders">Reminders</NavLink>
-          <NavLink to="/profile">Profile</NavLink>
+          <div>
+            <h1>Job Tracker</h1>
+            <p>Application dashboard</p>
+          </div>
         </div>
 
-        <button onClick={logout}>Logout</button>
-      </nav>
+        <nav className="sidebar-nav">
+          <NavLink to="/applications">
+            <BriefcaseBusiness size={18} />
+            <span>Applications</span>
+          </NavLink>
 
-      {children}
-    </main>
+          <NavLink to="/reminders">
+            <Clock3 size={18} />
+            <span>Reminders</span>
+          </NavLink>
+
+          <NavLink to="/profile">
+            <User size={18} />
+            <span>Profile</span>
+          </NavLink>
+        </nav>
+
+        <button className="button-secondary logout-button" onClick={logout}>
+          <LogOut size={18} />
+          <span>Logout</span>
+        </button>
+      </aside>
+
+      <main className="app-content">{children}</main>
+    </div>
   );
 }
 

@@ -1,38 +1,68 @@
-import ReminderList from "./ReminderList"
+import { useState } from "react";
+import {
+  Building2,
+  CalendarDays,
+  Pencil,
+  Trash2,
+} from "lucide-react";
+import ReminderList from "./ReminderList";
+import ConfirmModal from "./ConfirmModal";
 
 function ApplicationCard({ application, handleEdit, handleDelete }) {
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+
   return (
-    <div className="application-card">
-      <h2>{application.company}</h2>
+    <article className="application-card">
+      <div className="application-header">
+        <div>
+          <div className="application-company">
+            <Building2 size={20} />
+            <h2>{application.company}</h2>
+          </div>
 
-      <p>{application.position}</p>
+          <p className="application-position">{application.position}</p>
+        </div>
 
-      <p>Applied on: {application.date_applied}</p>
+        <span className={`status-badge ${application.status.toLowerCase()}`}>
+          {application.status}
+        </span>
+      </div>
 
-      <span className={`status-badge ${application.status.toLowerCase()}`}>
-        {application.status}
-      </span>
+      <p className="application-date">
+        <CalendarDays size={16} />
+        <span>Applied on {application.date_applied}</span>
+      </p>
 
       <ReminderList applicationId={application.id} />
 
       <div className="card-buttons">
-        <button className="edit-button" onClick={() => handleEdit(application)}>
-          Edit
+        <button className="button-secondary" onClick={() => handleEdit(application)}>
+          <Pencil size={16} />
+          <span>Edit</span>
         </button>
 
         <button
-          className="delete-button"
-          onClick={() => {
-            if (window.confirm("Delete this application?")) {
-              handleDelete(application.id)
-            }
-          }}
+          className="button-danger"
+          onClick={() => setShowDeleteModal(true)}
         >
-          Delete
+          <Trash2 size={16} />
+          <span>Delete</span>
         </button>
       </div>
-    </div>
-  )
+
+      {showDeleteModal && (
+        <ConfirmModal
+          title="Delete application?"
+          message={`This will permanently delete ${application.company}.`}
+          onCancel={() => setShowDeleteModal(false)}
+          onConfirm={() => {
+            handleDelete(application.id);
+            setShowDeleteModal(false);
+          }}
+        />
+      )}
+    </article>
+  );
 }
 
-export default ApplicationCard
+export default ApplicationCard;

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { toast } from "react-hot-toast";
+import ConfirmModal from "./ConfirmModal";
 import {
   completeReminder,
   createReminder,
@@ -12,6 +13,7 @@ function ReminderList({ applicationId }) {
   const [title, setTitle] = useState("");
   const [dueDate, setDueDate] = useState("");
   const [notes, setNotes] = useState("");
+  const [reminderToDelete, setReminderToDelete] = useState(null);
 
   useEffect(() => {
     fetchReminders();
@@ -128,13 +130,28 @@ function ReminderList({ applicationId }) {
                   </button>
                 )}
 
-                <button onClick={() => handleDelete(reminder.id)}>
+                <button
+                  className="button-danger"
+                  onClick={() => setReminderToDelete(reminder)}
+                >
                   Delete
                 </button>
               </div>
             </li>
           ))}
         </ul>
+      )}
+
+      {reminderToDelete && (
+        <ConfirmModal
+          title="Delete reminder?"
+          message={`Delete "${reminderToDelete.title}"?`}
+          onCancel={() => setReminderToDelete(null)}
+          onConfirm={async () => {
+            await handleDelete(reminderToDelete.id);
+            setReminderToDelete(null);
+          }}
+        />
       )}
 
       <form onSubmit={handleSubmit} className="reminder-form">

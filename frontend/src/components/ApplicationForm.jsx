@@ -1,3 +1,5 @@
+import { PlusCircle } from "lucide-react";
+
 function ApplicationForm({
   company,
   setCompany,
@@ -10,57 +12,68 @@ function ApplicationForm({
   handleSubmit,
   editingId,
   handleCancelEdit,
-  loading
+  loading,
 }) {
   return (
-    <form className="application-form" onSubmit={handleSubmit}>
-      <input
-        type="text"
-        placeholder="Company"
-        value={company}
-        onChange={event => setCompany(event.target.value)}
-        required
-      />
+    <section className="card application-form-card">
+      <div className="form-card-header">
+        <PlusCircle size={20} />
+        <h2>{editingId ? "Edit application" : "New application"}</h2>
+      </div>
 
-      <input
-        type="text"
-        placeholder="Position"
-        value={position}
-        onChange={event => setPosition(event.target.value)}
-        required
-      />
+      <form className="application-form" onSubmit={handleSubmit}>
+        <input
+          type="text"
+          placeholder="Company"
+          value={company}
+          onChange={(event) => setCompany(event.target.value)}
+          required
+        />
 
-      <input
-        type="date"
-        value={dateApplied}
-        onChange={event => setDateApplied(event.target.value)}
-        max={new Date().toISOString().split("T")[0]}
-      />
+        <input
+          type="text"
+          placeholder="Position"
+          value={position}
+          onChange={(event) => setPosition(event.target.value)}
+          required
+        />
 
-      <select
-        value={status}
-        onChange={event => setStatus(event.target.value)}
-      >
-        <option value="Applied">Applied</option>
-        <option value="Interview">Interview</option>
-        <option value="Rejected">Rejected</option>
-        <option value="Offer">Offer</option>
-      </select>
+        <input
+          type="date"
+          value={dateApplied}
+          onChange={(event) => setDateApplied(event.target.value)}
+          max={new Date().toISOString().split("T")[0]}
+        />
 
-      <button
-        type="submit"
-        disabled={loading || !company.trim() || !position.trim()}
-      >
-        {loading ? "Saving..." : editingId ? "Update application" : "Add application"}
-      </button>
+        <select
+          value={status}
+          onChange={(event) => setStatus(event.target.value)}
+        >
+          <option value="Applied">Applied</option>
+          <option value="Interview">Interview</option>
+          <option value="Rejected">Rejected</option>
+          <option value="Offer">Offer</option>
+        </select>
 
-      {editingId && (
-        <button type="button" onClick={handleCancelEdit}>
-            Cancel
+        <button
+          type="submit"
+          disabled={loading || !company.trim() || !position.trim()}
+        >
+          {loading
+            ? "Saving..."
+            : editingId
+              ? "Update application"
+              : "Add application"}
         </button>
+
+        {editingId && (
+          <button type="button" onClick={handleCancelEdit}>
+            Cancel
+          </button>
         )}
-    </form>
-  )
+      </form>
+    </section>
+  );
 }
 
-export default ApplicationForm
+export default ApplicationForm;
