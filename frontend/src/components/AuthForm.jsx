@@ -28,20 +28,26 @@ function AuthForm({ onLogin }) {
         setIsRegistering(false);
         toast.success("Account created successfully. Please log in.");
       }
-    } catch (error) {
+    } catch {
       toast.error(
         isRegistering
           ? "Could not create account. Please try again."
-          : "Connecting to the server. Please try again in a few seconds."
+          : "Could not connect to the server. Please try again in a few seconds."
       );
     }
   }
 
   return (
     <section className="auth-card">
-      <h1>{isRegistering ? "Create account" : "Login"}</h1>
+      <h2>{isRegistering ? "Create account" : "Welcome back"}</h2>
 
-      <form onSubmit={handleSubmit} className="application-form">
+      <p className="auth-subtitle">
+        {isRegistering
+          ? "Create your account to get started."
+          : "Sign in to continue."}
+      </p>
+
+      <form onSubmit={handleSubmit} className="auth-form">
         <input
           type="email"
           placeholder="Email"
@@ -59,13 +65,21 @@ function AuthForm({ onLogin }) {
         />
 
         <button type="submit">
-          {isRegistering ? "Register" : "Login"}
+          {isRegistering ? "Create account" : "Login"}
         </button>
-      </form>
+        </form>
 
-      <button onClick={() => setIsRegistering(!isRegistering)}>
-        {isRegistering ? "Already have an account?" : "Create account"}
-      </button>
+        <p className="auth-footer">
+          {isRegistering ? "Already have an account? " : "Don't have an account? "}
+
+          <button
+            type="button"
+            className="auth-link"
+            onClick={() => setIsRegistering(!isRegistering)}
+          >
+            {isRegistering ? "Sign in" : "Create one"}
+          </button>
+        </p>
     </section>
   );
 }
