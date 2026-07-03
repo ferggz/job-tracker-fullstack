@@ -1,118 +1,139 @@
-# Job Tracker Fullstack
+# Job Tracker
 
-A fullstack job application tracker built with React, FastAPI, PostgreSQL, SQLAlchemy and Docker.
+A modern fullstack web application to manage job applications, built with React, FastAPI, PostgreSQL and Docker.
 
-The application allows users to create, manage, filter and organize job applications through a modern frontend connected to a REST API backend.
+![React](https://img.shields.io/badge/React-19-61DAFB?logo=react)
+![FastAPI](https://img.shields.io/badge/FastAPI-0.116-009688?logo=fastapi)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-17-4169E1?logo=postgresql)
+![Docker](https://img.shields.io/badge/Docker-Enabled-2496ED?logo=docker)
+![License](https://img.shields.io/badge/License-MIT-green)
 
-## Live Demo
+---
 
-Frontend:
+## 📸 Preview
+
+![Login](screenshots/login.png)
+
+![Dashboard](screenshots/dashboard.png)
+
+![Reminders](screenshots/reminders.png)
+
+![Profile](screenshots/profile.png)
+
+---
+
+## 🚀 Live Demo
+
+**Frontend**
+
 ```text
 https://job-tracker-fullstack-three.vercel.app
 ```
 
-Backend API:
+**Backend API**
+
 ```text
 https://job-tracker-fullstack-z6cy.onrender.com
 ```
 
-Swagger Documentation:
+**Swagger Documentation**
+
 ```text
 https://job-tracker-fullstack-z6cy.onrender.com/docs
 ```
 
-## What I Learned
+---
 
-Through this project I practiced:
-
-- Building a fullstack application with React and FastAPI
-- Connecting a React frontend to a REST API
-- Using fetch and asynchronous API calls
-- Structuring a React application using reusable components
-- Managing state with React hooks
-- Creating CRUD operations between frontend and backend
-- Migrating a backend from SQLite to PostgreSQL
-- Using SQLAlchemy ORM for database operations
-- Creating relational database models
-- Building and consuming REST API endpoints
-- Using Pydantic models for request validation
-- Working with CORS middleware
-- Organizing frontend services for API communication
-- Managing environment variables
-- Creating responsive user interfaces with CSS
-- Implementing filtering, sorting and search functionality
-- Using localStorage to persist frontend preferences
-- Improving frontend UX with conditional rendering and validations
-- Structuring a fullstack project architecture
-- Deploying a PostgreSQL-based fullstack application
-- Containerizing applications with Docker
-- Using Docker Compose to orchestrate multiple services
-- Running React, FastAPI and PostgreSQL in containers
-- Managing persistent database volumes with Docker
-
-## Features
+## ✨ Features
 
 - Create, edit and delete job applications
-- PostgreSQL database persistence
-- SQLAlchemy ORM integration
-- React frontend connected to FastAPI backend
+- JWT Authentication
+- Upload and manage CVs
+- PostgreSQL database
+- SQLAlchemy ORM
 - Filter applications by status
-- Search applications by company or position
-- Sort applications by date, status or company
+- Search by company or position
+- Sort by date, company or status
 - Dashboard statistics
-- Responsive UI
-- Status badges with different colors
+- Responsive interface
+- Status badges
 - Form validation
-- Local storage preferences
-- Automatic FastAPI Swagger documentation
+- Persistent frontend preferences with localStorage
+- Automatic API documentation with Swagger
 
-## Technologies Used
+---
 
-### Frontend
+## 📚 What I Learned
 
-- React
-- JavaScript
-- CSS
-- Vite
+During this project I practiced:
 
-### Backend
+- Building a fullstack application with React and FastAPI
+- Designing and consuming REST APIs
+- Using SQLAlchemy ORM with PostgreSQL
+- Implementing JWT authentication
+- Managing file uploads with Supabase Storage
+- Structuring scalable frontend and backend architectures
+- Managing environment variables
+- Containerizing applications with Docker
+- Orchestrating multiple services using Docker Compose
+- Deploying a fullstack application to Vercel and Render
+- Creating responsive user interfaces
+- Improving user experience with filtering, searching and validation
 
-- Python
-- FastAPI
-- PostgreSQL
-- SQLAlchemy
-- Pydantic
-- Uvicorn
+---
 
-### DevOps
-
-- Docker
-- Docker Compose
-
-## Project Evolution
+## 🚀 Project Evolution
 
 ### Initial Version
-- FastAPI backend with SQLite
+
+- SQLite database
 - Basic CRUD operations
-- React frontend connected to a REST API
+- React frontend connected to FastAPI
 
 ### Current Version
-- Migrated database from SQLite to PostgreSQL
-- Replaced raw SQL queries with SQLAlchemy ORM
-- Improved backend architecture and scalability
-- Deployed PostgreSQL-based backend on Render
-- Dockerized frontend, backend and PostgreSQL
-- Added Docker Compose for local development
 
-## How to Run
+- PostgreSQL migration
+- SQLAlchemy ORM
+- JWT authentication
+- CV upload with Supabase Storage
+- Dockerized frontend, backend and database
+- Docker Compose
+- Cloud deployment on Render and Vercel
 
-### Backend
+---
 
-Create and activate a virtual environment:
+# ⚙️ Running Locally
+
+## 1. Clone the repository
+
+```bash
+git clone https://github.com/ferggz/job-tracker-fullstack.git
+
+cd job-tracker-fullstack
+```
+
+---
+
+## 2. Backend
+
+Create a virtual environment:
 
 ```bash
 python -m venv .venv
-source .venv/Scripts/activate
+```
+
+Activate it:
+
+**Windows PowerShell**
+
+```powershell
+.\.venv\Scripts\Activate.ps1
+```
+
+**Linux/macOS**
+
+```bash
+source .venv/bin/activate
 ```
 
 Install dependencies:
@@ -121,31 +142,39 @@ Install dependencies:
 pip install -r requirements.txt
 ```
 
-Create a `.env` file inside the backend folder:
+Create a `.env` file inside `backend/`:
 
 ```env
 DATABASE_URL=your_postgresql_database_url
+
+SECRET_KEY=your_secret_key
+
+SUPABASE_URL=your_supabase_url
+
+SUPABASE_KEY=your_supabase_key
 ```
 
-Run the backend server:
+Run:
 
 ```bash
 uvicorn main:app --reload
 ```
 
-Backend URL:
+Backend:
 
 ```text
 http://127.0.0.1:8000
 ```
 
-Swagger documentation:
+Swagger:
 
 ```text
 http://127.0.0.1:8000/docs
 ```
 
-### Frontend
+---
+
+## 3. Frontend
 
 Install dependencies:
 
@@ -153,37 +182,37 @@ Install dependencies:
 npm install
 ```
 
-Run the frontend server:
+Run:
 
 ```bash
 npm run dev
 ```
 
-Frontend URL:
+Frontend:
 
 ```text
 http://localhost:5173
 ```
-## Run with Docker
 
-### Configure environment variables
+---
 
-Create a `.env` file inside the `backend` folder from the example file.
+# 🐳 Docker
 
-**Windows PowerShell:**
+Copy the example environment file.
+
+**Windows**
 
 ```powershell
 Copy-Item backend/.env.example backend/.env
 ```
 
-**Linux/macOS:**
+**Linux/macOS**
 
 ```bash
 cp backend/.env.example backend/.env
 ```
 
-
-Build and start all services:
+Start all services:
 
 ```bash
 docker compose up --build
@@ -195,70 +224,12 @@ Stop services:
 docker compose down
 ```
 
-Services:
+Available services:
 
-- Frontend: http://localhost:5173
-- Backend: http://localhost:8000
-- Swagger Docs: http://localhost:8000/docs
+| Service | URL |
+|---------|------|
+| Frontend | http://localhost:5173 |
+| Backend | http://localhost:8000 |
+| Swagger | http://localhost:8000/docs |
 
-> Note: PostgreSQL is exposed locally on port `5433` to avoid conflicts with existing PostgreSQL installations.
-
-
-The application runs with:
-
-- React frontend
-- FastAPI backend
-- PostgreSQL database
-
-All services are orchestrated with Docker Compose.
-
-## API Endpoints
-
-### Get all applications
-
-```text
-GET /applications
-```
-
-### Create application
-
-```text
-POST /applications
-```
-
-Example body:
-
-```json
-{
-  "company": "Google",
-  "position": "Backend Developer",
-  "status": "Applied",
-  "date_applied": "2026-05-21"
-}
-```
-
-### Update application
-
-```text
-PUT /applications/{id}
-```
-
-### Delete application
-
-```text
-DELETE /applications/{id}
-```
-
-## Screenshots
-
-### Dashboard
-
-![Dashboard](screenshots/dashboard.png)
-
-### Filters and Search
-
-![Filters](screenshots/filters.png)
-
-### Edit Application
-
-![Edit Application](screenshots/edit.png)
+> PostgreSQL is exposed locally on port **5433** to avoid conflicts with existing PostgreSQL installations.
