@@ -7,6 +7,10 @@ function ApplicationForm({
   setPosition,
   status,
   setStatus,
+  platform,
+  setPlatform,
+  sourceUrl,
+  setSourceUrl,
   dateApplied,
   setDateApplied,
   handleSubmit,
@@ -36,6 +40,25 @@ function ApplicationForm({
           value={position}
           onChange={(event) => setPosition(event.target.value)}
           required
+        />
+
+        <select
+          value={platform}
+          onChange={(event) => setPlatform(event.target.value)}
+        >
+          <option value="">Select platform</option>
+          <option value="LinkedIn">LinkedIn</option>
+          <option value="InfoJobs">InfoJobs</option>
+          <option value="Indeed">Indeed</option>
+          <option value="Tecnoempleo">Tecnoempleo</option>
+          <option value="Other">Other</option>
+        </select>
+
+        <input
+          type="url"
+          placeholder="Job offer URL"
+          value={sourceUrl}
+          onChange={(event) => setSourceUrl(event.target.value)}
         />
 
         <input

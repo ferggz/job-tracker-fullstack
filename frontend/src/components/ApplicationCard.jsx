@@ -4,6 +4,7 @@ import {
   CalendarDays,
   Pencil,
   Trash2,
+  Link as LinkIcon,
 } from "lucide-react";
 import ReminderList from "./ReminderList";
 import ConfirmModal from "./ConfirmModal";
@@ -21,6 +22,29 @@ function ApplicationCard({ application, handleEdit, handleDelete }) {
           </div>
 
           <p className="application-position">{application.position}</p>
+
+          {(application.platform || application.source_url) && (
+            <div className="application-source">
+              {application.platform && (
+                <span>{application.platform}</span>
+              )}
+
+              {application.platform && application.source_url && (
+                <span> • </span>
+              )}
+
+              {application.source_url && (
+                <a
+                  href={application.source_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <LinkIcon size={14} />
+                  <span>View offer</span>
+                </a>
+              )}
+            </div>
+          )}
         </div>
 
         <span className={`status-badge ${application.status.toLowerCase()}`}>

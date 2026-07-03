@@ -17,6 +17,8 @@ function ApplicationsPage() {
   const [company, setCompany] = useState("");
   const [position, setPosition] = useState("");
   const [status, setStatus] = useState("Applied");
+  const [platform, setPlatform] = useState("");
+  const [sourceUrl, setSourceUrl] = useState("");
   const [editingId, setEditingId] = useState(null);
   const [filterStatus, setFilterStatus] = useState(
     localStorage.getItem("filterStatus") || "All",
@@ -57,6 +59,8 @@ function ApplicationsPage() {
       company,
       position,
       status,
+      platform,
+      source_url: sourceUrl,
       date_applied: dateApplied,
     };
 
@@ -82,6 +86,8 @@ function ApplicationsPage() {
       setPosition("");
       setStatus("Applied");
       setDateApplied("");
+      setPlatform("");
+      setSourceUrl("");
     } catch {
       toast.error("Could not save application.");
     } finally {
@@ -117,6 +123,8 @@ function ApplicationsPage() {
     setPosition(application.position);
     setStatus(application.status);
     setDateApplied(application.date_applied);
+    setPlatform(application.platform ?? "");
+    setSourceUrl(application.source_url ?? "");
   }
 
   function handleCancelEdit() {
@@ -125,6 +133,8 @@ function ApplicationsPage() {
     setPosition("");
     setStatus("Applied");
     setDateApplied("");
+    setPlatform("");
+    setSourceUrl("");
   }
 
   const statusOrder = {
@@ -234,6 +244,10 @@ function ApplicationsPage() {
         editingId={editingId}
         handleCancelEdit={handleCancelEdit}
         loading={loading}
+        platform={platform}
+        setPlatform={setPlatform}
+        sourceUrl={sourceUrl}
+        setSourceUrl={setSourceUrl}
       />
 
       <ApplicationList

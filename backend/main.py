@@ -33,6 +33,8 @@ class ApplicationCreate(BaseModel):
     company: str
     position: str
     status: str
+    platform: str | None = None
+    source_url: str | None = None
     date_applied: str
 
 
@@ -82,6 +84,8 @@ def create_application(
         company=application.company,
         position=application.position,
         status=application.status,
+        platform=application.platform,
+        source_url=application.source_url,
         date_applied=application.date_applied,
         user_id=current_user.id
     )
@@ -111,6 +115,8 @@ def update_application(
     application.company = updated_application.company
     application.position = updated_application.position
     application.status = updated_application.status
+    application.platform = updated_application.platform
+    application.source_url = updated_application.source_url
     application.date_applied = updated_application.date_applied
 
     db.commit()
