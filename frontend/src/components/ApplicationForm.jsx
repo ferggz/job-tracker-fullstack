@@ -58,7 +58,23 @@ function ApplicationForm({
           type="url"
           placeholder="Job offer URL"
           value={sourceUrl}
-          onChange={(event) => setSourceUrl(event.target.value)}
+          onChange={(event) => {
+            const url = event.target.value;
+
+            setSourceUrl(url);
+
+            const lowerUrl = url.toLowerCase();
+
+            if (lowerUrl.includes("linkedin.com")) {
+              setPlatform("LinkedIn");
+            } else if (lowerUrl.includes("infojobs.net")) {
+              setPlatform("InfoJobs");
+            } else if (lowerUrl.includes("indeed")) {
+              setPlatform("Indeed");
+            } else if (lowerUrl.includes("tecnoempleo")) {
+              setPlatform("Tecnoempleo");
+            }
+          }}
         />
 
         <input
