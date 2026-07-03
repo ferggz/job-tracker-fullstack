@@ -1,4 +1,4 @@
-from sqlalchemy import Boolean, Column, ForeignKey, Integer, Text
+from sqlalchemy import Boolean, Column, ForeignKey, Integer, Text, String
 from sqlalchemy.orm import relationship
 
 from database import Base
@@ -21,6 +21,8 @@ class Application(Base):
     company = Column(Text, nullable=False)
     position = Column(Text, nullable=False)
     status = Column(Text, nullable=False)
+    platform = Column(String, nullable=True)
+    source_url = Column(String, nullable=True)
     date_applied = Column(Text, nullable=False)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=True)
 
