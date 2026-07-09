@@ -1,7 +1,7 @@
 import { BriefcaseBusiness, Clock3, FileText } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import AuthForm from "../components/AuthForm";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../context/useAuth";
 
 function LoginPage() {
   const navigate = useNavigate();

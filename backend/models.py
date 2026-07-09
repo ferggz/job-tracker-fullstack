@@ -26,8 +26,6 @@ class Application(Base):
     date_applied = Column(Text, nullable=False)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=True)
 
-    user = relationship("User")
-
     reminders = relationship(
         "Reminder",
         back_populates="application",
