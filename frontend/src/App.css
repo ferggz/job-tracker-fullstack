@@ -258,11 +258,50 @@ button:disabled {
   margin-bottom: 32px;
 }
 
+.application-form-card:not(.is-open) .form-card-header {
+  margin-bottom: 0;
+}
+
 .form-card-header {
   display: flex;
   align-items: center;
   gap: 10px;
   margin-bottom: 16px;
+}
+
+.form-card-toggle {
+  width: 100%;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  text-align: left;
+}
+
+.form-card-toggle .toggle-icon {
+  transition: transform 0.2s ease;
+}
+
+.application-form-collapse {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.25s ease;
+}
+
+.application-form-card.is-open .application-form-collapse {
+  grid-template-rows: 1fr;
+}
+
+.application-form-collapse-inner {
+  overflow: hidden;
+}
+
+.application-form-actions {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
 }
 
 .form-card-header h2 {

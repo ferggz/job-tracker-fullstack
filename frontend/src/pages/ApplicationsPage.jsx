@@ -42,6 +42,7 @@ function ApplicationsPage() {
   const [notes, setNotes] = useState(EMPTY_FORM.notes);
   const [loading, setLoading] = useState(false);
   const [editLoading, setEditLoading] = useState(false);
+  const [isCreateFormOpen, setIsCreateFormOpen] = useState(false);
 
   useEffect(() => {
     async function loadApplications() {
@@ -89,12 +90,18 @@ function ApplicationsPage() {
       const newApplication = await createApplication(application);
       setApplications([...applications, newApplication]);
       resetCreateForm();
+      setIsCreateFormOpen(false);
       toast.success("Application created.");
     } catch {
       toast.error("Could not save application.");
     } finally {
       setLoading(false);
     }
+  }
+
+  function handleCancelCreate() {
+    resetCreateForm();
+    setIsCreateFormOpen(false);
   }
 
   async function handleUpdate(applicationData) {
@@ -232,6 +239,9 @@ function ApplicationsPage() {
       </p>
 
       <ApplicationForm
+        isOpen={isCreateFormOpen}
+        onToggle={() => setIsCreateFormOpen((open) => !open)}
+        onCancel={handleCancelCreate}
         company={company}
         setCompany={setCompany}
         position={position}
