@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { toast } from "react-hot-toast";
+import ApplicationEditModal from "../components/ApplicationEditModal";
 import ApplicationList from "../components/ApplicationList";
 import ApplicationForm from "../components/ApplicationForm";
 import UpcomingReminders from "../components/UpcomingReminders";
@@ -29,7 +30,7 @@ function ApplicationsPage() {
   const [status, setStatus] = useState(EMPTY_FORM.status);
   const [platform, setPlatform] = useState(EMPTY_FORM.platform);
   const [sourceUrl, setSourceUrl] = useState(EMPTY_FORM.sourceUrl);
-  const [editingId, setEditingId] = useState(null);
+  const [editingApplication, setEditingApplication] = useState(null);
   const [filterStatus, setFilterStatus] = useState(
     localStorage.getItem("filterStatus") || "All",
   );
@@ -40,6 +41,7 @@ function ApplicationsPage() {
   const [dateApplied, setDateApplied] = useState(EMPTY_FORM.dateApplied);
   const [notes, setNotes] = useState(EMPTY_FORM.notes);
   const [loading, setLoading] = useState(false);
+  const [editLoading, setEditLoading] = useState(false);
 
   useEffect(() => {
     async function loadApplications() {
@@ -59,8 +61,7 @@ function ApplicationsPage() {
     localStorage.setItem("sortBy", sortBy);
   }, [filterStatus, sortBy]);
 
-  function resetForm() {
-    setEditingId(null);
+  function resetCreateForm() {
     setCompany(EMPTY_FORM.company);
     setPosition(EMPTY_FORM.position);
     setStatus(EMPTY_FORM.status);
@@ -70,7 +71,7 @@ function ApplicationsPage() {
     setNotes(EMPTY_FORM.notes);
   }
 
-  async function handleSubmit(event) {
+  async function handleCreate(event) {
     event.preventDefault();
     setLoading(true);
 
@@ -85,27 +86,42 @@ function ApplicationsPage() {
     };
 
     try {
-      if (editingId) {
-        const updatedApplication = await updateApplication(editingId, application);
-
-        setApplications(
-          applications.map((item) =>
-            item.id === editingId ? updatedApplication : item,
-          ),
-        );
-
-        toast.success("Application updated.");
-      } else {
-        const newApplication = await createApplication(application);
-        setApplications([...applications, newApplication]);
-        toast.success("Application created.");
-      }
-
-      resetForm();
+      const newApplication = await createApplication(application);
+      setApplications([...applications, newApplication]);
+      resetCreateForm();
+      toast.success("Application created.");
     } catch {
       toast.error("Could not save application.");
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function handleUpdate(applicationData) {
+    if (!editingApplication) {
+      return;
+    }
+
+    setEditLoading(true);
+
+    try {
+      const updatedApplication = await updateApplication(
+        editingApplication.id,
+        applicationData,
+      );
+
+      setApplications(
+        applications.map((item) =>
+          item.id === editingApplication.id ? updatedApplication : item,
+        ),
+      );
+
+      setEditingApplication(null);
+      toast.success("Application updated.");
+    } catch {
+      toast.error("Could not save application.");
+    } finally {
+      setEditLoading(false);
     }
   }
 
@@ -124,14 +140,7 @@ function ApplicationsPage() {
   }
 
   function handleEdit(application) {
-    setEditingId(application.id);
-    setCompany(application.company);
-    setPosition(application.position);
-    setStatus(application.status);
-    setDateApplied(application.date_applied);
-    setPlatform(application.platform ?? "");
-    setSourceUrl(application.source_url ?? "");
-    setNotes(application.notes ?? "");
+    setEditingApplication(application);
   }
 
   const filteredApplications = applications.filter((application) => {
@@ -231,9 +240,7 @@ function ApplicationsPage() {
         setStatus={setStatus}
         dateApplied={dateApplied}
         setDateApplied={setDateApplied}
-        handleSubmit={handleSubmit}
-        editingId={editingId}
-        handleCancelEdit={resetForm}
+        handleSubmit={handleCreate}
         loading={loading}
         platform={platform}
         setPlatform={setPlatform}
@@ -248,6 +255,16 @@ function ApplicationsPage() {
         handleEdit={handleEdit}
         handleDelete={handleDelete}
       />
+
+      {editingApplication && (
+        <ApplicationEditModal
+          key={editingApplication.id}
+          application={editingApplication}
+          loading={editLoading}
+          onClose={() => setEditingApplication(null)}
+          onSubmit={handleUpdate}
+        />
+      )}
     </MainLayout>
   );
 }
