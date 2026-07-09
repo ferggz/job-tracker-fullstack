@@ -1,201 +1,263 @@
 import { toast } from "react-hot-toast";
 
-const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8000"
-const API_URL = `${BASE_URL}/applications`
-const REMINDERS_URL = `${BASE_URL}/reminders`
+const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
+const API_URL = `${BASE_URL}/applications`;
+const REMINDERS_URL = `${BASE_URL}/reminders`;
+
+let refreshPromise = null;
 
 function getAuthHeaders() {
-  const token = localStorage.getItem("accessToken")
+  const token = localStorage.getItem("accessToken");
 
-  return token ? { Authorization: `Bearer ${token}` } : {}
+  return token ? { Authorization: `Bearer ${token}` } : {};
+}
+
+function clearAuthTokens() {
+  localStorage.removeItem("accessToken");
+  localStorage.removeItem("refreshToken");
 }
 
 function handleUnauthorized() {
-  localStorage.removeItem("accessToken")
-  window.location.href = "/login"
+  clearAuthTokens();
+  window.location.href = "/login";
+}
+
+function storeAuthTokens(data) {
+  localStorage.setItem("accessToken", data.access_token);
+  localStorage.setItem("refreshToken", data.refresh_token);
+}
+
+async function refreshAccessToken() {
+  if (refreshPromise) {
+    return refreshPromise;
+  }
+
+  const refreshToken = localStorage.getItem("refreshToken");
+
+  if (!refreshToken) {
+    throw new Error("No refresh token");
+  }
+
+  refreshPromise = fetch(`${BASE_URL}/auth/refresh`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ refresh_token: refreshToken }),
+  })
+    .then(async (response) => {
+      if (!response.ok) {
+        throw new Error("Refresh failed");
+      }
+
+      const data = await response.json();
+      storeAuthTokens(data);
+      return data.access_token;
+    })
+    .finally(() => {
+      refreshPromise = null;
+    });
+
+  return refreshPromise;
 }
 
 async function parseResponse(response) {
-  if (response.status === 401) {
-    handleUnauthorized()
-    throw new Error("Session expired")
-  }
-
   if (!response.ok) {
-    const error = await response.json().catch(() => null)
-    throw new Error(error?.detail || "Request failed")
+    const error = await response.json().catch(() => null);
+    throw new Error(error?.detail || "Request failed");
   }
 
-  return response.json()
+  return response.json();
+}
+
+async function request(url, options = {}, isRetry = false) {
+  const response = await fetch(url, {
+    ...options,
+    headers: {
+      ...options.headers,
+      ...getAuthHeaders(),
+    },
+  });
+
+  if (response.status === 401 && !isRetry) {
+    try {
+      await refreshAccessToken();
+      return request(url, options, true);
+    } catch {
+      handleUnauthorized();
+      throw new Error("Session expired");
+    }
+  }
+
+  if (response.status === 401) {
+    handleUnauthorized();
+    throw new Error("Session expired");
+  }
+
+  return parseResponse(response);
 }
 
 export async function getApplications() {
-  const response = await fetch(API_URL, {
-    headers: getAuthHeaders()
-  })
-
-  return parseResponse(response)
+  return request(API_URL);
 }
 
 export async function createApplication(application) {
-  const response = await fetch(API_URL, {
+  return request(API_URL, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      ...getAuthHeaders()
     },
-    body: JSON.stringify(application)
-  })
-
-  return parseResponse(response)
+    body: JSON.stringify(application),
+  });
 }
 
 export async function updateApplication(id, application) {
-  const response = await fetch(`${API_URL}/${id}`, {
+  return request(`${API_URL}/${id}`, {
     method: "PUT",
     headers: {
       "Content-Type": "application/json",
-      ...getAuthHeaders()
     },
-    body: JSON.stringify(application)
-  })
-
-  return parseResponse(response)
+    body: JSON.stringify(application),
+  });
 }
 
 export async function deleteApplication(id) {
-  const response = await fetch(`${API_URL}/${id}`, {
+  return request(`${API_URL}/${id}`, {
     method: "DELETE",
-    headers: getAuthHeaders()
-  })
-
-  return parseResponse(response)
+  });
 }
 
 export async function getApplicationReminders(applicationId) {
-  const response = await fetch(`${API_URL}/${applicationId}/reminders`, {
-    headers: getAuthHeaders()
-  })
-
-  return parseResponse(response)
+  return request(`${API_URL}/${applicationId}/reminders`);
 }
 
 export async function createReminder(reminder) {
-  const response = await fetch(REMINDERS_URL, {
+  return request(REMINDERS_URL, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      ...getAuthHeaders()
     },
-    body: JSON.stringify(reminder)
-  })
-
-  return parseResponse(response)
+    body: JSON.stringify(reminder),
+  });
 }
 
 export async function completeReminder(reminderId) {
-  const response = await fetch(`${REMINDERS_URL}/${reminderId}/complete`, {
+  return request(`${REMINDERS_URL}/${reminderId}/complete`, {
     method: "PUT",
-    headers: getAuthHeaders()
-  })
-
-  return parseResponse(response)
+  });
 }
 
 export async function deleteReminder(reminderId) {
-  const response = await fetch(`${REMINDERS_URL}/${reminderId}`, {
+  return request(`${REMINDERS_URL}/${reminderId}`, {
     method: "DELETE",
-    headers: getAuthHeaders()
-  })
-
-  return parseResponse(response)
+  });
 }
 
 export async function getReminders() {
-  const response = await fetch(REMINDERS_URL, {
-    headers: getAuthHeaders()
-  })
-
-  return parseResponse(response)
+  return request(REMINDERS_URL);
 }
 
 export async function registerUser(user) {
   const response = await fetch(`${BASE_URL}/auth/register`, {
     method: "POST",
     headers: {
-      "Content-Type": "application/json"
+      "Content-Type": "application/json",
     },
-    body: JSON.stringify(user)
-  })
+    body: JSON.stringify(user),
+  });
 
-  return parseResponse(response)
+  return parseResponse(response);
 }
 
 export async function loginUser(user) {
-  const formData = new URLSearchParams()
+  const formData = new URLSearchParams();
 
-  formData.append("username", user.email)
-  formData.append("password", user.password)
+  formData.append("username", user.email);
+  formData.append("password", user.password);
 
   const response = await fetch(`${BASE_URL}/auth/login`, {
     method: "POST",
     headers: {
-      "Content-Type": "application/x-www-form-urlencoded"
+      "Content-Type": "application/x-www-form-urlencoded",
     },
-    body: formData
-  })
+    body: formData,
+  });
 
-  return parseResponse(response)
+  return parseResponse(response);
+}
+
+export async function logoutUser() {
+  try {
+    await request(`${BASE_URL}/auth/logout`, {
+      method: "POST",
+    });
+  } catch {
+    // Session may already be invalid; still clear local tokens.
+  } finally {
+    clearAuthTokens();
+  }
 }
 
 export async function uploadProfileCv(cvType, file) {
-  const formData = new FormData()
-  formData.append("file", file)
+  const formData = new FormData();
+  formData.append("file", file);
 
-  const response = await fetch(`${BASE_URL}/profile/cv/${cvType}`, {
+  return request(`${BASE_URL}/profile/cv/${cvType}`, {
     method: "POST",
-    headers: getAuthHeaders(),
-    body: formData
-  })
+    body: formData,
+  });
+}
 
-  return parseResponse(response)
+async function fetchProfileCv(cvType, isRetry = false) {
+  const response = await fetch(`${BASE_URL}/profile/cv/${cvType}`, {
+    headers: getAuthHeaders(),
+  });
+
+  if (response.status === 401 && !isRetry) {
+    try {
+      await refreshAccessToken();
+      return fetchProfileCv(cvType, true);
+    } catch {
+      handleUnauthorized();
+      return null;
+    }
+  }
+
+  if (response.status === 401) {
+    handleUnauthorized();
+    return null;
+  }
+
+  return response;
 }
 
 export async function openProfileCv(cvType) {
-  const response = await fetch(`${BASE_URL}/profile/cv/${cvType}`, {
-    headers: getAuthHeaders()
-  })
+  const response = await fetchProfileCv(cvType);
 
-  if (response.status === 401) {
-    handleUnauthorized()
-    return
+  if (!response) {
+    return;
   }
 
   if (!response.ok) {
-    toast.error("Could not open CV")
-    return
+    toast.error("Could not open CV");
+    return;
   }
 
-  const blob = await response.blob()
-  const pdfBlob = new Blob([blob], { type: "application/pdf" })
-  const url = window.URL.createObjectURL(pdfBlob)
+  const blob = await response.blob();
+  const pdfBlob = new Blob([blob], { type: "application/pdf" });
+  const url = window.URL.createObjectURL(pdfBlob);
 
-  window.location.href = url
+  window.location.href = url;
 }
 
 export async function getProfile() {
-  const response = await fetch(`${BASE_URL}/profile`, {
-    headers: getAuthHeaders()
-  })
-
-  return parseResponse(response)
+  return request(`${BASE_URL}/profile`);
 }
 
 export async function deleteProfileCv(cvType) {
-  const response = await fetch(`${BASE_URL}/profile/cv/${cvType}`, {
+  return request(`${BASE_URL}/profile/cv/${cvType}`, {
     method: "DELETE",
-    headers: getAuthHeaders()
-  })
-
-  return parseResponse(response)
+  });
 }
+
+export { storeAuthTokens, clearAuthTokens };

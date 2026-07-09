@@ -1,4 +1,4 @@
-from sqlalchemy import Boolean, Column, ForeignKey, Integer, Text, String
+from sqlalchemy import Boolean, Column, DateTime, ForeignKey, Integer, Text, String
 from sqlalchemy.orm import relationship
 
 from database import Base
@@ -10,6 +10,8 @@ class User(Base):
     id = Column(Integer, primary_key=True)
     email = Column(Text, unique=True, nullable=False)
     hashed_password = Column(Text, nullable=False)
+    refresh_token_hash = Column(Text, nullable=True)
+    refresh_token_expires_at = Column(DateTime(timezone=True), nullable=True)
     primary_cv_filename = Column(Text, nullable=True)
     secondary_cv_filename = Column(Text, nullable=True)
 

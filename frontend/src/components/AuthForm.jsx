@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { toast } from "react-hot-toast";
-import { loginUser, registerUser } from "../services/api";
+import { loginUser, registerUser, storeAuthTokens } from "../services/api";
 
 function AuthForm({ onLogin }) {
   const [email, setEmail] = useState("");
@@ -18,7 +18,7 @@ function AuthForm({ onLogin }) {
         : await loginUser(user);
 
       if (data.access_token) {
-        localStorage.setItem("accessToken", data.access_token);
+        storeAuthTokens(data);
         toast.success("Welcome back!");
         onLogin();
         return;

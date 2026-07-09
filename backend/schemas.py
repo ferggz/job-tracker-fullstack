@@ -21,3 +21,7 @@ class ReminderCreate(BaseModel):
     due_date: str
     completed: bool = False
     notes: str | None = None
+
+
+class RefreshTokenRequest(BaseModel):
+    refresh_token: str
