@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { AuthContext } from "./authContext";
+import { logoutUser } from "../services/api";
 
 export function AuthProvider({ children }) {
   const [isAuthenticated, setIsAuthenticated] = useState(
@@ -10,8 +11,8 @@ export function AuthProvider({ children }) {
     setIsAuthenticated(true);
   }
 
-  function logout() {
-    localStorage.removeItem("accessToken");
+  async function logout() {
+    await logoutUser();
     setIsAuthenticated(false);
   }
 
