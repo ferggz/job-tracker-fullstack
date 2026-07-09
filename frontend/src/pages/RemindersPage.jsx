@@ -1,53 +1,56 @@
 import { useEffect, useState } from "react";
+import { toast } from "react-hot-toast";
 import MainLayout from "../layouts/MainLayout";
 import { completeReminder, deleteReminder, getReminders } from "../services/api";
+import { isOverdue } from "../utils/reminders";
 
 function RemindersPage() {
   const [reminders, setReminders] = useState([]);
   const [error, setError] = useState("");
 
   useEffect(() => {
-    fetchReminders();
+    async function loadReminders() {
+      try {
+        const data = await getReminders();
+        setReminders(
+          data.sort((a, b) => new Date(a.due_date) - new Date(b.due_date)),
+        );
+        setError("");
+      } catch {
+        setError("Could not load reminders.");
+      }
+    }
+
+    loadReminders();
   }, []);
 
-  async function fetchReminders() {
+  async function handleComplete(reminderId) {
     try {
-      const data = await getReminders();
+      await completeReminder(reminderId);
+
       setReminders(
-        data.sort((a, b) => new Date(a.due_date) - new Date(b.due_date)),
+        reminders.map((reminder) =>
+          reminder.id === reminderId
+            ? { ...reminder, completed: true }
+            : reminder,
+        ),
       );
-      setError("");
+
+      toast.success("Reminder completed.");
     } catch {
-      setError("Could not load reminders.");
+      toast.error("Could not complete reminder.");
     }
   }
 
-  async function handleComplete(reminderId) {
-    await completeReminder(reminderId);
-
-    setReminders(
-      reminders.map((reminder) =>
-        reminder.id === reminderId
-          ? { ...reminder, completed: true }
-          : reminder,
-      ),
-    );
-  }
-
   async function handleDelete(reminderId) {
-    await deleteReminder(reminderId);
+    try {
+      await deleteReminder(reminderId);
 
-    setReminders(reminders.filter((reminder) => reminder.id !== reminderId));
-  }
-
-  function isOverdue(reminder) {
-    const today = new Date();
-    const dueDate = new Date(reminder.due_date);
-
-    today.setHours(0, 0, 0, 0);
-    dueDate.setHours(0, 0, 0, 0);
-
-    return dueDate < today && !reminder.completed;
+      setReminders(reminders.filter((reminder) => reminder.id !== reminderId));
+      toast.success("Reminder deleted.");
+    } catch {
+      toast.error("Could not delete reminder.");
+    }
   }
 
   return (

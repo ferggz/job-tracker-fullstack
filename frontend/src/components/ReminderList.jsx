@@ -7,6 +7,7 @@ import {
   deleteReminder,
   getApplicationReminders,
 } from "../services/api";
+import { isOverdue } from "../utils/reminders";
 
 function ReminderList({ applicationId }) {
   const [reminders, setReminders] = useState([]);
@@ -16,17 +17,17 @@ function ReminderList({ applicationId }) {
   const [reminderToDelete, setReminderToDelete] = useState(null);
 
   useEffect(() => {
-    fetchReminders();
-  }, [applicationId]);
-
-  async function fetchReminders() {
-    try {
-      const data = await getApplicationReminders(applicationId);
-      setReminders(data);
-    } catch {
-      console.error("Could not load reminders.");
+    async function loadReminders() {
+      try {
+        const data = await getApplicationReminders(applicationId);
+        setReminders(data);
+      } catch {
+        toast.error("Could not load reminders.");
+      }
     }
-  }
+
+    loadReminders();
+  }, [applicationId]);
 
   async function handleSubmit(event) {
     event.preventDefault();
@@ -79,16 +80,6 @@ function ReminderList({ applicationId }) {
     } catch {
       toast.error("Could not delete reminder.");
     }
-  }
-
-  function isOverdue(reminder) {
-    const today = new Date();
-    const dueDateValue = new Date(reminder.due_date);
-
-    today.setHours(0, 0, 0, 0);
-    dueDateValue.setHours(0, 0, 0, 0);
-
-    return dueDateValue < today && !reminder.completed;
   }
 
   return (

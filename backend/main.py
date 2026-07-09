@@ -1,18 +1,15 @@
-from fastapi import FastAPI, Depends, HTTPException, Response
-from fastapi import File, UploadFile
+from fastapi import Depends, FastAPI, File, HTTPException, Response, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import OAuth2PasswordRequestForm
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
-from database import SessionLocal, engine, Base
-from models import Application, Reminder, User
-from schemas import UserCreate, UserLogin
-from security import hash_password, verify_password, create_access_token
 from auth import get_current_user
+from database import get_db
+from models import Application, Reminder, User
+from schemas import UserCreate
+from security import create_access_token, hash_password, verify_password
 from storage import delete_file, download_file, upload_file
-
-import os
 
 
 app = FastAPI()
@@ -21,7 +18,7 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         "http://localhost:5173",
-        "https://job-tracker-fullstack-three.vercel.app"
+        "https://job-tracker-fullstack-three.vercel.app",
     ],
     allow_credentials=True,
     allow_methods=["*"],
@@ -46,17 +43,55 @@ class ReminderCreate(BaseModel):
     notes: str | None = None
 
 
-def get_db():
-    db = SessionLocal()
-
-    try:
-        yield db
-    finally:
-        db.close()
+VALID_CV_TYPES = {"primary", "secondary"}
 
 
-UPLOAD_DIR = "uploads"
-os.makedirs(UPLOAD_DIR, exist_ok=True)
+def get_user_application(db: Session, application_id: int, user_id: int) -> Application:
+    application = db.query(Application).filter(
+        Application.id == application_id,
+        Application.user_id == user_id,
+    ).first()
+
+    if application is None:
+        raise HTTPException(status_code=404, detail="Application not found")
+
+    return application
+
+
+def get_user_reminder(db: Session, reminder_id: int, user_id: int) -> Reminder:
+    reminder = db.query(Reminder).join(Application).filter(
+        Reminder.id == reminder_id,
+        Application.user_id == user_id,
+    ).first()
+
+    if reminder is None:
+        raise HTTPException(status_code=404, detail="Reminder not found")
+
+    return reminder
+
+
+def validate_cv_type(cv_type: str) -> None:
+    if cv_type not in VALID_CV_TYPES:
+        raise HTTPException(status_code=400, detail="Invalid CV type")
+
+
+def get_cv_filename(user: User, cv_type: str) -> str | None:
+    validate_cv_type(cv_type)
+
+    if cv_type == "primary":
+        return user.primary_cv_filename
+
+    return user.secondary_cv_filename
+
+
+def set_cv_filename(user: User, cv_type: str, filename: str | None) -> None:
+    validate_cv_type(cv_type)
+
+    if cv_type == "primary":
+        user.primary_cv_filename = filename
+        return
+
+    user.secondary_cv_filename = filename
 
 
 @app.get("/")
@@ -67,7 +102,7 @@ def home():
 @app.get("/applications")
 def get_applications(
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(get_current_user),
 ):
     return db.query(Application).filter(
         Application.user_id == current_user.id
@@ -78,7 +113,7 @@ def get_applications(
 def create_application(
     application: ApplicationCreate,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(get_current_user),
 ):
     new_application = Application(
         company=application.company,
@@ -87,7 +122,7 @@ def create_application(
         platform=application.platform,
         source_url=application.source_url,
         date_applied=application.date_applied,
-        user_id=current_user.id
+        user_id=current_user.id,
     )
 
     db.add(new_application)
@@ -102,15 +137,9 @@ def update_application(
     application_id: int,
     updated_application: ApplicationCreate,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(get_current_user),
 ):
-    application = db.query(Application).filter(
-        Application.id == application_id,
-        Application.user_id == current_user.id
-    ).first()
-
-    if application is None:
-        raise HTTPException(status_code=404, detail="Application not found")
+    application = get_user_application(db, application_id, current_user.id)
 
     application.company = updated_application.company
     application.position = updated_application.position
@@ -129,15 +158,9 @@ def update_application(
 def delete_application(
     application_id: int,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(get_current_user),
 ):
-    application = db.query(Application).filter(
-        Application.id == application_id,
-        Application.user_id == current_user.id
-    ).first()
-
-    if application is None:
-        raise HTTPException(status_code=404, detail="Application not found")
+    application = get_user_application(db, application_id, current_user.id)
 
     db.delete(application)
     db.commit()
@@ -149,43 +172,29 @@ def delete_application(
 def get_application_reminders(
     application_id: int,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(get_current_user),
 ):
-    application = db.query(Application).filter(
-        Application.id == application_id,
-        Application.user_id == current_user.id
-    ).first()
+    get_user_application(db, application_id, current_user.id)
 
-    if application is None:
-        raise HTTPException(status_code=404, detail="Application not found")
-
-    reminders = db.query(Reminder).filter(
+    return db.query(Reminder).filter(
         Reminder.application_id == application_id
     ).all()
-
-    return reminders
 
 
 @app.post("/reminders")
 def create_reminder(
     reminder: ReminderCreate,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(get_current_user),
 ):
-    application = db.query(Application).filter(
-        Application.id == reminder.application_id,
-        Application.user_id == current_user.id
-    ).first()
-
-    if application is None:
-        raise HTTPException(status_code=404, detail="Application not found")
+    get_user_application(db, reminder.application_id, current_user.id)
 
     new_reminder = Reminder(
         application_id=reminder.application_id,
         title=reminder.title,
         due_date=reminder.due_date,
         completed=reminder.completed,
-        notes=reminder.notes
+        notes=reminder.notes,
     )
 
     db.add(new_reminder)
@@ -199,16 +208,9 @@ def create_reminder(
 def complete_reminder(
     reminder_id: int,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(get_current_user),
 ):
-    reminder = db.query(Reminder).join(Application).filter(
-        Reminder.id == reminder_id,
-        Application.user_id == current_user.id
-    ).first()
-
-    if reminder is None:
-        raise HTTPException(status_code=404, detail="Reminder not found")
-
+    reminder = get_user_reminder(db, reminder_id, current_user.id)
     reminder.completed = True
 
     db.commit()
@@ -221,15 +223,9 @@ def complete_reminder(
 def delete_reminder(
     reminder_id: int,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(get_current_user),
 ):
-    reminder = db.query(Reminder).join(Application).filter(
-        Reminder.id == reminder_id,
-        Application.user_id == current_user.id
-    ).first()
-
-    if reminder is None:
-        raise HTTPException(status_code=404, detail="Reminder not found")
+    reminder = get_user_reminder(db, reminder_id, current_user.id)
 
     db.delete(reminder)
     db.commit()
@@ -240,7 +236,7 @@ def delete_reminder(
 @app.get("/reminders")
 def get_reminders(
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(get_current_user),
 ):
     reminders = db.query(Reminder).join(Application).filter(
         Application.user_id == current_user.id
@@ -255,7 +251,7 @@ def get_reminders(
             "completed": reminder.completed,
             "notes": reminder.notes,
             "company": reminder.application.company,
-            "position": reminder.application.position
+            "position": reminder.application.position,
         }
         for reminder in reminders
     ]
@@ -264,7 +260,7 @@ def get_reminders(
 @app.post("/auth/register")
 def register_user(
     user: UserCreate,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ):
     existing_user = db.query(User).filter(
         User.email == user.email
@@ -275,7 +271,7 @@ def register_user(
 
     new_user = User(
         email=user.email,
-        hashed_password=hash_password(user.password)
+        hashed_password=hash_password(user.password),
     )
 
     db.add(new_user)
@@ -288,7 +284,7 @@ def register_user(
 @app.post("/auth/login")
 def login_user(
     form_data: OAuth2PasswordRequestForm = Depends(),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ):
     existing_user = db.query(User).filter(
         User.email == form_data.username
@@ -300,58 +296,24 @@ def login_user(
     if not verify_password(form_data.password, existing_user.hashed_password):
         raise HTTPException(status_code=401, detail="Invalid credentials")
 
-    token = create_access_token(
-        {"sub": existing_user.email}
-    )
+    token = create_access_token({"sub": existing_user.email})
 
     return {
         "access_token": token,
-        "token_type": "bearer"
-    }
-
-
-@app.get("/me")
-def get_me(
-    current_user: User = Depends(get_current_user)
-):
-    return {
-        "id": current_user.id,
-        "email": current_user.email
+        "token_type": "bearer",
     }
 
 
 @app.get("/profile")
 def get_profile(
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(get_current_user),
 ):
     return {
         "id": current_user.id,
         "email": current_user.email,
         "primary_cv_uploaded": current_user.primary_cv_filename is not None,
-        "secondary_cv_uploaded": current_user.secondary_cv_filename is not None
+        "secondary_cv_uploaded": current_user.secondary_cv_filename is not None,
     }
-
-
-def get_cv_filename(current_user: User, cv_type: str):
-    if cv_type == "primary":
-        return current_user.primary_cv_filename
-
-    if cv_type == "secondary":
-        return current_user.secondary_cv_filename
-
-    raise HTTPException(status_code=400, detail="Invalid CV type")
-
-
-def set_cv_filename(current_user: User, cv_type: str, filename: str):
-    if cv_type == "primary":
-        current_user.primary_cv_filename = filename
-        return
-
-    if cv_type == "secondary":
-        current_user.secondary_cv_filename = filename
-        return
-
-    raise HTTPException(status_code=400, detail="Invalid CV type")
 
 
 @app.post("/profile/cv/{cv_type}")
@@ -359,10 +321,9 @@ def upload_profile_cv(
     cv_type: str,
     file: UploadFile = File(...),
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(get_current_user),
 ):
-    if cv_type not in ["primary", "secondary"]:
-        raise HTTPException(status_code=400, detail="Invalid CV type")
+    validate_cv_type(cv_type)
 
     if file.content_type != "application/pdf":
         raise HTTPException(status_code=400, detail="Only PDF files are allowed")
@@ -371,25 +332,22 @@ def upload_profile_cv(
     file_content = file.file.read()
 
     upload_file(filename, file_content, "application/pdf")
-
-    user = db.query(User).filter(User.id == current_user.id).first()
-
-    set_cv_filename(user, cv_type, filename)
+    set_cv_filename(current_user, cv_type, filename)
 
     db.commit()
-    db.refresh(user)
+    db.refresh(current_user)
 
     return {
         "message": "CV uploaded successfully",
         "cv_type": cv_type,
-        "cv_filename": filename
+        "cv_filename": filename,
     }
 
 
 @app.get("/profile/cv/{cv_type}")
 def get_profile_cv(
     cv_type: str,
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(get_current_user),
 ):
     filename = get_cv_filename(current_user, cv_type)
 
@@ -402,61 +360,8 @@ def get_profile_cv(
         content=file_content,
         media_type="application/pdf",
         headers={
-            "Content-Disposition": f"inline; filename={cv_type}_cv.pdf"
-        }
-    )
-
-
-@app.post("/profile/cv/{cv_type}")
-def upload_profile_cv(
-    cv_type: str,
-    file: UploadFile = File(...),
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
-):
-    if cv_type not in ["primary", "secondary"]:
-        raise HTTPException(status_code=400, detail="Invalid CV type")
-
-    if file.content_type != "application/pdf":
-        raise HTTPException(status_code=400, detail="Only PDF files are allowed")
-
-    filename = f"user_{current_user.id}/{cv_type}_cv.pdf"
-    file_content = file.file.read()
-
-    upload_file(filename, file_content, "application/pdf")
-
-    user = db.query(User).filter(User.id == current_user.id).first()
-
-    set_cv_filename(user, cv_type, filename)
-
-    db.commit()
-    db.refresh(user)
-
-    return {
-        "message": "CV uploaded successfully",
-        "cv_type": cv_type,
-        "cv_filename": filename
-    }
-
-
-@app.get("/profile/cv/{cv_type}")
-def get_profile_cv(
-    cv_type: str,
-    current_user: User = Depends(get_current_user)
-):
-    filename = get_cv_filename(current_user, cv_type)
-
-    if filename is None:
-        raise HTTPException(status_code=404, detail="CV not found")
-
-    file_content = download_file(filename)
-
-    return Response(
-        content=file_content,
-        media_type="application/pdf",
-        headers={
-            "Content-Disposition": f"inline; filename={cv_type}_cv.pdf"
-        }
+            "Content-Disposition": f"inline; filename={cv_type}_cv.pdf",
+        },
     )
 
 
@@ -464,25 +369,19 @@ def get_profile_cv(
 def delete_profile_cv(
     cv_type: str,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(get_current_user),
 ):
-    if cv_type not in ["primary", "secondary"]:
-        raise HTTPException(status_code=400, detail="Invalid CV type")
-
-    user = db.query(User).filter(User.id == current_user.id).first()
-
-    filename = get_cv_filename(user, cv_type)
+    filename = get_cv_filename(current_user, cv_type)
 
     if filename is None:
         raise HTTPException(status_code=404, detail="CV not found")
 
     delete_file(filename)
-
-    set_cv_filename(user, cv_type, None)
+    set_cv_filename(current_user, cv_type, None)
 
     db.commit()
 
     return {
         "message": "CV deleted successfully",
-        "cv_type": cv_type
+        "cv_type": cv_type,
     }

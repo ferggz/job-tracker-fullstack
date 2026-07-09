@@ -4,21 +4,30 @@ import ApplicationList from "../components/ApplicationList";
 import ApplicationForm from "../components/ApplicationForm";
 import UpcomingReminders from "../components/UpcomingReminders";
 import MainLayout from "../layouts/MainLayout";
-import { useAuth } from "../context/AuthContext";
+import { APPLICATION_STATUSES, STATUS_ORDER } from "../constants/applications";
 import {
-  getApplications,
   createApplication,
-  updateApplication,
   deleteApplication,
+  getApplications,
+  updateApplication,
 } from "../services/api";
+
+const EMPTY_FORM = {
+  company: "",
+  position: "",
+  status: "Applied",
+  platform: "",
+  sourceUrl: "",
+  dateApplied: "",
+};
 
 function ApplicationsPage() {
   const [applications, setApplications] = useState([]);
-  const [company, setCompany] = useState("");
-  const [position, setPosition] = useState("");
-  const [status, setStatus] = useState("Applied");
-  const [platform, setPlatform] = useState("");
-  const [sourceUrl, setSourceUrl] = useState("");
+  const [company, setCompany] = useState(EMPTY_FORM.company);
+  const [position, setPosition] = useState(EMPTY_FORM.position);
+  const [status, setStatus] = useState(EMPTY_FORM.status);
+  const [platform, setPlatform] = useState(EMPTY_FORM.platform);
+  const [sourceUrl, setSourceUrl] = useState(EMPTY_FORM.sourceUrl);
   const [editingId, setEditingId] = useState(null);
   const [filterStatus, setFilterStatus] = useState(
     localStorage.getItem("filterStatus") || "All",
@@ -27,28 +36,35 @@ function ApplicationsPage() {
     localStorage.getItem("sortBy") || "recent",
   );
   const [searchTerm, setSearchTerm] = useState("");
-  const [dateApplied, setDateApplied] = useState("");
+  const [dateApplied, setDateApplied] = useState(EMPTY_FORM.dateApplied);
   const [loading, setLoading] = useState(false);
-  const { isAuthenticated } = useAuth();
 
   useEffect(() => {
-    if (isAuthenticated) {
-      fetchApplications();
+    async function loadApplications() {
+      try {
+        const data = await getApplications();
+        setApplications(data);
+      } catch {
+        toast.error("Could not load applications.");
+      }
     }
-  }, [isAuthenticated]);
+
+    loadApplications();
+  }, []);
 
   useEffect(() => {
     localStorage.setItem("filterStatus", filterStatus);
     localStorage.setItem("sortBy", sortBy);
   }, [filterStatus, sortBy]);
 
-  async function fetchApplications() {
-    try {
-      const data = await getApplications();
-      setApplications(data);
-    } catch (error) {
-      console.error(error);
-    }
+  function resetForm() {
+    setEditingId(null);
+    setCompany(EMPTY_FORM.company);
+    setPosition(EMPTY_FORM.position);
+    setStatus(EMPTY_FORM.status);
+    setDateApplied(EMPTY_FORM.dateApplied);
+    setPlatform(EMPTY_FORM.platform);
+    setSourceUrl(EMPTY_FORM.sourceUrl);
   }
 
   async function handleSubmit(event) {
@@ -69,12 +85,11 @@ function ApplicationsPage() {
         const updatedApplication = await updateApplication(editingId, application);
 
         setApplications(
-          applications.map((application) =>
-            application.id === editingId ? updatedApplication : application,
+          applications.map((item) =>
+            item.id === editingId ? updatedApplication : item,
           ),
         );
 
-        setEditingId(null);
         toast.success("Application updated.");
       } else {
         const newApplication = await createApplication(application);
@@ -82,12 +97,7 @@ function ApplicationsPage() {
         toast.success("Application created.");
       }
 
-      setCompany("");
-      setPosition("");
-      setStatus("Applied");
-      setDateApplied("");
-      setPlatform("");
-      setSourceUrl("");
+      resetForm();
     } catch {
       toast.error("Could not save application.");
     } finally {
@@ -96,14 +106,6 @@ function ApplicationsPage() {
   }
 
   async function handleDelete(id) {
-    const confirmed = window.confirm(
-      "Are you sure you want to delete this application?",
-    );
-
-    if (!confirmed) {
-      return;
-    }
-
     try {
       await deleteApplication(id);
 
@@ -127,23 +129,6 @@ function ApplicationsPage() {
     setSourceUrl(application.source_url ?? "");
   }
 
-  function handleCancelEdit() {
-    setEditingId(null);
-    setCompany("");
-    setPosition("");
-    setStatus("Applied");
-    setDateApplied("");
-    setPlatform("");
-    setSourceUrl("");
-  }
-
-  const statusOrder = {
-    Offer: 1,
-    Interview: 2,
-    Applied: 3,
-    Rejected: 4,
-  };
-
   const filteredApplications = applications.filter((application) => {
     const matchesStatus =
       filterStatus === "All" || application.status === filterStatus;
@@ -159,7 +144,7 @@ function ApplicationsPage() {
     if (sortBy === "recent") return new Date(b.date_applied) - new Date(a.date_applied);
     if (sortBy === "oldest") return new Date(a.date_applied) - new Date(b.date_applied);
     if (sortBy === "company") return a.company.localeCompare(b.company);
-    if (sortBy === "status") return statusOrder[a.status] - statusOrder[b.status];
+    if (sortBy === "status") return STATUS_ORDER[a.status] - STATUS_ORDER[b.status];
 
     return 0;
   });
@@ -209,10 +194,11 @@ function ApplicationsPage() {
             onChange={(event) => setFilterStatus(event.target.value)}
           >
             <option value="All">All statuses</option>
-            <option value="Offer">Offer</option>
-            <option value="Interview">Interview</option>
-            <option value="Applied">Applied</option>
-            <option value="Rejected">Rejected</option>
+            {APPLICATION_STATUSES.map((statusOption) => (
+              <option key={statusOption} value={statusOption}>
+                {statusOption}
+              </option>
+            ))}
           </select>
 
           <select
@@ -242,7 +228,7 @@ function ApplicationsPage() {
         setDateApplied={setDateApplied}
         handleSubmit={handleSubmit}
         editingId={editingId}
-        handleCancelEdit={handleCancelEdit}
+        handleCancelEdit={resetForm}
         loading={loading}
         platform={platform}
         setPlatform={setPlatform}

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { toast } from "react-hot-toast";
 import ConfirmModal from "../components/ConfirmModal";
+import CvUploadSection from "../components/CvUploadSection";
 import MainLayout from "../layouts/MainLayout";
 import {
   deleteProfileCv,
@@ -54,6 +55,12 @@ function ProfilePage() {
           : `${cvType} CV uploaded successfully.`,
       );
 
+      if (cvType === "primary") {
+        setPrimaryCv(null);
+      } else {
+        setSecondaryCv(null);
+      }
+
       setError("");
     } catch {
       toast.error("Could not upload CV.");
@@ -95,77 +102,27 @@ function ProfilePage() {
 
         {error && <p className="error-message">{error}</p>}
 
-        <div className="cv-section">
-          <h3>Primary CV</h3>
+        <CvUploadSection
+          title="Primary CV"
+          cvType="primary"
+          uploaded={profile?.primary_cv_uploaded}
+          selectedFile={primaryCv}
+          onFileChange={setPrimaryCv}
+          onUpload={handleUpload}
+          onView={openProfileCv}
+          onDelete={setCvToDelete}
+        />
 
-          <p>
-            Status:{" "}
-            {profile?.primary_cv_uploaded ? "Uploaded" : "Not uploaded"}
-          </p>
-
-          <input
-            type="file"
-            accept="application/pdf"
-            onChange={(event) => setPrimaryCv(event.target.files[0])}
-          />
-
-          <button onClick={() => handleUpload("primary", primaryCv)}>
-            {profile?.primary_cv_uploaded
-              ? "Replace primary CV"
-              : "Upload primary CV"}
-          </button>
-
-          {profile?.primary_cv_uploaded && (
-            <>
-              <button onClick={() => openProfileCv("primary")}>
-                View primary CV
-              </button>
-
-              <button
-                className="button-danger"
-                onClick={() => setCvToDelete("primary")}
-              >
-                Delete primary CV
-              </button>
-            </>
-          )}
-        </div>
-
-        <div className="cv-section">
-          <h3>Secondary CV</h3>
-
-          <p>
-            Status:{" "}
-            {profile?.secondary_cv_uploaded ? "Uploaded" : "Not uploaded"}
-          </p>
-
-          <input
-            type="file"
-            accept="application/pdf"
-            onChange={(event) => setSecondaryCv(event.target.files[0])}
-          />
-
-          <button onClick={() => handleUpload("secondary", secondaryCv)}>
-            {profile?.secondary_cv_uploaded
-              ? "Replace secondary CV"
-              : "Upload secondary CV"}
-          </button>
-
-          {profile?.secondary_cv_uploaded && (
-            <>
-              <button onClick={() => openProfileCv("secondary")}>
-                View secondary CV
-              </button>
-
-              <button
-                className="button-danger"
-                onClick={() => setCvToDelete("secondary")}
-              >
-                Delete secondary CV
-              </button>
-            </>
-          )}
-        </div>
+        <CvUploadSection
+          title="Secondary CV"
+          cvType="secondary"
+          uploaded={profile?.secondary_cv_uploaded}
+          selectedFile={secondaryCv}
+          onFileChange={setSecondaryCv}
+          onUpload={handleUpload}
+          onView={openProfileCv}
+          onDelete={setCvToDelete}
+        />
       </section>
 
       {cvToDelete && (

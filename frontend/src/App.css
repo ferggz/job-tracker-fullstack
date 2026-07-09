@@ -469,19 +469,11 @@ button:disabled {
   color: #ef4444;
 }
 
-.cv-upload {
+.cv-section {
   margin-top: 0.75rem;
 }
 
-.cv-upload label {
-  display: flex;
-  flex-direction: column;
-  gap: 0.4rem;
-  color: #cbd5e1;
-  font-size: 0.9rem;
-}
-
-.cv-upload input {
+.cv-section input {
   max-width: 260px;
 }
 
@@ -493,6 +485,9 @@ button:disabled {
 }
 
 .application-date {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   color: #94a3b8;
   margin-bottom: 16px;
 }
@@ -559,13 +554,6 @@ button:disabled {
 
 .application-source a:hover {
   text-decoration: underline;
-}
-
-.application-date {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  color: #94a3b8;
 }
 
 .card-buttons button {

@@ -7,15 +7,27 @@ SUPABASE_SECRET_KEY = os.getenv("SUPABASE_SECRET_KEY")
 BUCKET_NAME = os.getenv("SUPABASE_STORAGE_BUCKET")
 
 
-def upload_file(path: str, content: bytes, content_type: str) -> None:
-    url = f"{SUPABASE_URL}/storage/v1/object/{BUCKET_NAME}/{path}"
+def _storage_headers(content_type: str | None = None) -> dict:
+    headers = {
+        "Authorization": f"Bearer {SUPABASE_SECRET_KEY}",
+        "apikey": SUPABASE_SECRET_KEY,
+    }
 
+    if content_type:
+        headers["Content-Type"] = content_type
+
+    return headers
+
+
+def _object_url(path: str) -> str:
+    return f"{SUPABASE_URL}/storage/v1/object/{BUCKET_NAME}/{path}"
+
+
+def upload_file(path: str, content: bytes, content_type: str) -> None:
     response = requests.post(
-        url,
+        _object_url(path),
         headers={
-            "Authorization": f"Bearer {SUPABASE_SECRET_KEY}",
-            "apikey": SUPABASE_SECRET_KEY,
-            "Content-Type": content_type,
+            **_storage_headers(content_type),
             "x-upsert": "true",
         },
         data=content,
@@ -25,19 +37,10 @@ def upload_file(path: str, content: bytes, content_type: str) -> None:
 
 
 def download_file(path: str) -> bytes:
-    url = f"{SUPABASE_URL}/storage/v1/object/{BUCKET_NAME}/{path}"
-
     response = requests.get(
-        url,
-        headers={
-            "Authorization": f"Bearer {SUPABASE_SECRET_KEY}",
-            "apikey": SUPABASE_SECRET_KEY,
-        },
+        _object_url(path),
+        headers=_storage_headers(),
     )
-
-    print("DOWNLOAD STATUS:", response.status_code)
-    print("DOWNLOAD HEADERS:", response.headers)
-    print("DOWNLOAD LENGTH:", len(response.content))
 
     response.raise_for_status()
 
@@ -45,19 +48,9 @@ def download_file(path: str) -> bytes:
 
 
 def delete_file(path: str) -> None:
-    url = f"{SUPABASE_URL}/storage/v1/object/{BUCKET_NAME}/{path}"
-
     response = requests.delete(
-        url,
-        headers={
-            "Authorization": f"Bearer {SUPABASE_SECRET_KEY}",
-            "apikey": SUPABASE_SECRET_KEY,
-        },
+        _object_url(path),
+        headers=_storage_headers(),
     )
 
-
     response.raise_for_status()
-
-    response.raise_for_status()
-
-    return response.content

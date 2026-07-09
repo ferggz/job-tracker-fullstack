@@ -1,4 +1,9 @@
 import { PlusCircle } from "lucide-react";
+import {
+  APPLICATION_STATUSES,
+  PLATFORMS,
+  detectPlatformFromUrl,
+} from "../constants/applications";
 
 function ApplicationForm({
   company,
@@ -47,11 +52,11 @@ function ApplicationForm({
           onChange={(event) => setPlatform(event.target.value)}
         >
           <option value="">Select platform</option>
-          <option value="LinkedIn">LinkedIn</option>
-          <option value="InfoJobs">InfoJobs</option>
-          <option value="Indeed">Indeed</option>
-          <option value="Tecnoempleo">Tecnoempleo</option>
-          <option value="Other">Other</option>
+          {PLATFORMS.map((platformOption) => (
+            <option key={platformOption} value={platformOption}>
+              {platformOption}
+            </option>
+          ))}
         </select>
 
         <input
@@ -63,16 +68,10 @@ function ApplicationForm({
 
             setSourceUrl(url);
 
-            const lowerUrl = url.toLowerCase();
+            const detectedPlatform = detectPlatformFromUrl(url);
 
-            if (lowerUrl.includes("linkedin.com")) {
-              setPlatform("LinkedIn");
-            } else if (lowerUrl.includes("infojobs.net")) {
-              setPlatform("InfoJobs");
-            } else if (lowerUrl.includes("indeed")) {
-              setPlatform("Indeed");
-            } else if (lowerUrl.includes("tecnoempleo")) {
-              setPlatform("Tecnoempleo");
+            if (detectedPlatform) {
+              setPlatform(detectedPlatform);
             }
           }}
         />
@@ -88,10 +87,11 @@ function ApplicationForm({
           value={status}
           onChange={(event) => setStatus(event.target.value)}
         >
-          <option value="Applied">Applied</option>
-          <option value="Interview">Interview</option>
-          <option value="Rejected">Rejected</option>
-          <option value="Offer">Offer</option>
+          {APPLICATION_STATUSES.map((statusOption) => (
+            <option key={statusOption} value={statusOption}>
+              {statusOption}
+            </option>
+          ))}
         </select>
 
         <button
