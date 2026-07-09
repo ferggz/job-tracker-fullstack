@@ -16,6 +16,8 @@ function ApplicationForm({
   setPlatform,
   sourceUrl,
   setSourceUrl,
+  notes,
+  setNotes,
   dateApplied,
   setDateApplied,
   handleSubmit,
@@ -93,6 +95,13 @@ function ApplicationForm({
             </option>
           ))}
         </select>
+
+        <textarea
+          placeholder="Notes (optional)"
+          value={notes}
+          onChange={(event) => setNotes(event.target.value)}
+          rows={3}
+        />
 
         <button
           type="submit"

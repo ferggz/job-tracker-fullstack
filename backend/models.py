@@ -26,6 +26,7 @@ class Application(Base):
     platform = Column(String, nullable=True)
     source_url = Column(String, nullable=True)
     date_applied = Column(Text, nullable=False)
+    notes = Column(Text, nullable=True)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=True)
 
     reminders = relationship(

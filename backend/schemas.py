@@ -13,6 +13,7 @@ class ApplicationCreate(BaseModel):
     platform: str | None = None
     source_url: str | None = None
     date_applied: str
+    notes: str | None = None
 
 
 class ReminderCreate(BaseModel):

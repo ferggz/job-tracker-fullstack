@@ -19,6 +19,7 @@ const EMPTY_FORM = {
   platform: "",
   sourceUrl: "",
   dateApplied: "",
+  notes: "",
 };
 
 function ApplicationsPage() {
@@ -37,6 +38,7 @@ function ApplicationsPage() {
   );
   const [searchTerm, setSearchTerm] = useState("");
   const [dateApplied, setDateApplied] = useState(EMPTY_FORM.dateApplied);
+  const [notes, setNotes] = useState(EMPTY_FORM.notes);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -65,6 +67,7 @@ function ApplicationsPage() {
     setDateApplied(EMPTY_FORM.dateApplied);
     setPlatform(EMPTY_FORM.platform);
     setSourceUrl(EMPTY_FORM.sourceUrl);
+    setNotes(EMPTY_FORM.notes);
   }
 
   async function handleSubmit(event) {
@@ -78,6 +81,7 @@ function ApplicationsPage() {
       platform,
       source_url: sourceUrl,
       date_applied: dateApplied,
+      notes: notes.trim() || null,
     };
 
     try {
@@ -127,6 +131,7 @@ function ApplicationsPage() {
     setDateApplied(application.date_applied);
     setPlatform(application.platform ?? "");
     setSourceUrl(application.source_url ?? "");
+    setNotes(application.notes ?? "");
   }
 
   const filteredApplications = applications.filter((application) => {
@@ -234,6 +239,8 @@ function ApplicationsPage() {
         setPlatform={setPlatform}
         sourceUrl={sourceUrl}
         setSourceUrl={setSourceUrl}
+        notes={notes}
+        setNotes={setNotes}
       />
 
       <ApplicationList

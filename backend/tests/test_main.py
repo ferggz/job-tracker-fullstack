@@ -79,6 +79,27 @@ def test_create_application_returns_created_application():
     assert "id" in data
 
 
+def test_create_application_with_notes_returns_notes():
+    headers = get_auth_headers("create-notes@example.com")
+
+    payload = {
+        "company": "Notes Company",
+        "position": "Developer",
+        "status": "Applied",
+        "date_applied": "2026-06-22",
+        "notes": "Follow up next week",
+    }
+
+    response = client.post(
+        "/applications",
+        json=payload,
+        headers=headers,
+    )
+
+    assert response.status_code == 200
+    assert response.json()["notes"] == payload["notes"]
+
+
 def test_create_reminder_returns_created_reminder():
     headers = get_auth_headers("create-reminder@example.com")
 
@@ -248,6 +269,43 @@ def test_update_application_returns_updated_application():
     assert data["position"] == update_payload["position"]
     assert data["status"] == update_payload["status"]
     assert data["date_applied"] == update_payload["date_applied"]
+
+
+def test_update_application_notes_returns_updated_notes():
+    headers = get_auth_headers("update-notes@example.com")
+
+    create_payload = {
+        "company": "Notes Update Co",
+        "position": "Developer",
+        "status": "Applied",
+        "date_applied": "2026-06-22",
+        "notes": "Initial note",
+    }
+
+    create_response = client.post(
+        "/applications",
+        json=create_payload,
+        headers=headers,
+    )
+
+    application_id = create_response.json()["id"]
+
+    update_payload = {
+        "company": "Notes Update Co",
+        "position": "Developer",
+        "status": "Applied",
+        "date_applied": "2026-06-22",
+        "notes": "Updated note",
+    }
+
+    response = client.put(
+        f"/applications/{application_id}",
+        json=update_payload,
+        headers=headers,
+    )
+
+    assert response.status_code == 200
+    assert response.json()["notes"] == "Updated note"
 
 
 def test_delete_application_returns_success_message():
