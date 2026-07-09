@@ -33,6 +33,7 @@ def create_application(
         platform=application.platform,
         source_url=application.source_url,
         date_applied=application.date_applied,
+        notes=application.notes,
         user_id=current_user.id,
     )
 
@@ -58,6 +59,7 @@ def update_application(
     application.platform = updated_application.platform
     application.source_url = updated_application.source_url
     application.date_applied = updated_application.date_applied
+    application.notes = updated_application.notes
 
     db.commit()
     db.refresh(application)

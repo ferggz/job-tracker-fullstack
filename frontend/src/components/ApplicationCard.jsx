@@ -57,6 +57,10 @@ function ApplicationCard({ application, handleEdit, handleDelete }) {
         <span>Applied on {application.date_applied}</span>
       </p>
 
+      {application.notes && (
+        <p className="application-notes">{application.notes}</p>
+      )}
+
       <ReminderList applicationId={application.id} />
 
       <div className="card-buttons">

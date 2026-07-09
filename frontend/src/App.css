@@ -211,6 +211,7 @@ button:disabled {
 
 .application-form input,
 .application-form select,
+.application-form textarea,
 .filters input,
 .filters select,
 .reminder-form input {
@@ -224,6 +225,7 @@ button:disabled {
 
 .application-form input:focus,
 .application-form select:focus,
+.application-form textarea:focus,
 .filters input:focus,
 .filters select:focus,
 .reminder-form input:focus {
@@ -237,6 +239,19 @@ button:disabled {
 
 .application-form select {
   min-width: 160px;
+}
+
+.application-form textarea {
+  grid-column: 1 / -1;
+  resize: vertical;
+  min-height: 80px;
+  font-family: inherit;
+}
+
+.application-notes {
+  color: #cbd5e1;
+  margin: 0 0 16px;
+  white-space: pre-wrap;
 }
 
 .application-form-card {
