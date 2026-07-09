@@ -321,7 +321,7 @@ def test_login_user_returns_access_token():
     assert data["token_type"] == "bearer"
 
 
-@patch("main.upload_file")
+@patch("routers.profile.upload_file")
 def test_upload_profile_primary_cv_returns_filename(mock_upload_file):
     headers = get_auth_headers("primary-cv@example.com")
 
@@ -346,7 +346,7 @@ def test_upload_profile_primary_cv_returns_filename(mock_upload_file):
     assert data["cv_filename"].startswith("user_")
 
 
-@patch("main.upload_file")
+@patch("routers.profile.upload_file")
 def test_upload_profile_secondary_cv_returns_filename(mock_upload_file):
     headers = get_auth_headers("secondary-cv@example.com")
 
