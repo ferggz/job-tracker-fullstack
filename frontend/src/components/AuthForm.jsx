@@ -6,12 +6,14 @@ function AuthForm({ onLogin }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isRegistering, setIsRegistering] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   async function handleSubmit(event) {
     event.preventDefault();
 
     const user = { email, password };
 
+    setIsSubmitting(true);
     try {
       const data = isRegistering
         ? await registerUser(user)
@@ -19,7 +21,6 @@ function AuthForm({ onLogin }) {
 
       if (data.access_token) {
         storeAuthTokens(data);
-        toast.success("Welcome back!");
         onLogin();
         return;
       }
@@ -34,6 +35,8 @@ function AuthForm({ onLogin }) {
           ? "Could not create account. Please try again."
           : "Could not connect to the server. Please try again in a few seconds."
       );
+    } finally {
+      setIsSubmitting(false);
     }
   }
 
@@ -48,24 +51,12 @@ function AuthForm({ onLogin }) {
       </p>
 
       <form onSubmit={handleSubmit} className="auth-form">
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(event) => setEmail(event.target.value)}
-          required
-        />
+        <label className="field"><span>Email</span><input type="email" value={email} onChange={(event) => setEmail(event.target.value)} autoComplete="email" required aria-required="true" /></label>
 
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(event) => setPassword(event.target.value)}
-          required
-        />
+        <label className="field"><span>Password</span><input type="password" value={password} onChange={(event) => setPassword(event.target.value)} autoComplete={isRegistering ? "new-password" : "current-password"} required aria-required="true" /></label>
 
-        <button type="submit">
-          {isRegistering ? "Create account" : "Login"}
+        <button type="submit" disabled={isSubmitting}>
+          {isSubmitting ? "Please wait…" : isRegistering ? "Create account" : "Sign in"}
         </button>
         </form>
 
@@ -77,7 +68,7 @@ function AuthForm({ onLogin }) {
             className="auth-link"
             onClick={() => setIsRegistering(!isRegistering)}
           >
-            {isRegistering ? "Sign in" : "Create one"}
+            {isRegistering ? "Sign in" : "Create account"}
           </button>
         </p>
     </section>

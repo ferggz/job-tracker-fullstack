@@ -1,6 +1,6 @@
 import ApplicationCard from "./ApplicationCard"
 
-function ApplicationList({ applications, handleEdit, handleDelete }) {
+function ApplicationList({ applications, selectedApplication, onSelect }) {
   if (applications.length === 0) {
     return (
       <div className="empty-state">
@@ -11,14 +11,18 @@ function ApplicationList({ applications, handleEdit, handleDelete }) {
   }
 
   return (
-    <div>
+    <div className="application-list" role="list" aria-label="Job applications">
+      <div className="application-list-header" aria-hidden="true">
+        <span>Company / position</span><span>Status</span><span>Applied</span><span>Source</span><span />
+      </div>
       {applications.map(application => (
-        <ApplicationCard
-          key={application.id}
-          application={application}
-          handleEdit={handleEdit}
-          handleDelete={handleDelete}
-        />
+        <div role="listitem" key={application.id}>
+          <ApplicationCard
+            application={application}
+            isSelected={selectedApplication?.id === application.id}
+            onSelect={onSelect}
+          />
+        </div>
       ))}
     </div>
   )

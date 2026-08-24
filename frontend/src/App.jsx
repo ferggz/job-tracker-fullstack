@@ -1,5 +1,5 @@
 import { Navigate, Route, Routes } from "react-router-dom";
-import "./App.css";
+import "./redesign.css";
 import LoginPage from "./pages/LoginPage";
 import ApplicationsPage from "./pages/ApplicationsPage";
 import ProtectedRoute from "./routes/ProtectedRoute";

@@ -40,20 +40,9 @@ function ProfilePage() {
       return;
     }
 
-    const replacing =
-      cvType === "primary"
-        ? profile?.primary_cv_uploaded
-        : profile?.secondary_cv_uploaded;
-
     try {
       await uploadProfileCv(cvType, file);
       await fetchProfile();
-
-      toast.success(
-        replacing
-          ? `${cvType} CV replaced successfully.`
-          : `${cvType} CV uploaded successfully.`,
-      );
 
       if (cvType === "primary") {
         setPrimaryCv(null);
@@ -72,7 +61,6 @@ function ProfilePage() {
       await deleteProfileCv(cvType);
       await fetchProfile();
 
-      toast.success(`${cvType} CV deleted successfully.`);
       setError("");
       setCvToDelete(null);
     } catch {
@@ -90,18 +78,18 @@ function ProfilePage() {
 
   return (
     <MainLayout>
-      <section>
-        <h2>Profile</h2>
-        <p>Manage your CVs.</p>
+      <section className="page-section">
+        <header className="page-header compact">
+          <div><p className="page-kicker">Account</p><h1>Profile</h1><p>Manage the documents you use in your job search.</p></div>
+        </header>
 
         {profile && (
-          <p>
-            Email: <strong>{profile.email}</strong>
-          </p>
+          <p className="profile-email"><span>Signed in as</span><strong>{profile.email}</strong></p>
         )}
 
         {error && <p className="error-message">{error}</p>}
 
+        <div className="cv-list">
         <CvUploadSection
           title="Primary CV"
           cvType="primary"
@@ -123,6 +111,7 @@ function ProfilePage() {
           onView={openProfileCv}
           onDelete={setCvToDelete}
         />
+        </div>
       </section>
 
       {cvToDelete && (

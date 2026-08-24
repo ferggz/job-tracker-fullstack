@@ -3,8 +3,10 @@ import { toast } from "react-hot-toast";
 import ApplicationEditModal from "../components/ApplicationEditModal";
 import ApplicationList from "../components/ApplicationList";
 import ApplicationForm from "../components/ApplicationForm";
+import ApplicationDetailPanel from "../components/ApplicationDetailPanel";
 import UpcomingReminders from "../components/UpcomingReminders";
 import MainLayout from "../layouts/MainLayout";
+import { Search, SlidersHorizontal } from "lucide-react";
 import { APPLICATION_STATUSES, STATUS_ORDER } from "../constants/applications";
 import {
   createApplication,
@@ -43,6 +45,7 @@ function ApplicationsPage() {
   const [loading, setLoading] = useState(false);
   const [editLoading, setEditLoading] = useState(false);
   const [isCreateFormOpen, setIsCreateFormOpen] = useState(false);
+  const [selectedApplication, setSelectedApplication] = useState(null);
 
   useEffect(() => {
     async function loadApplications() {
@@ -91,7 +94,6 @@ function ApplicationsPage() {
       setApplications([...applications, newApplication]);
       resetCreateForm();
       setIsCreateFormOpen(false);
-      toast.success("Application created.");
     } catch {
       toast.error("Could not save application.");
     } finally {
@@ -123,8 +125,11 @@ function ApplicationsPage() {
         ),
       );
 
+      if (selectedApplication?.id === editingApplication.id) {
+        setSelectedApplication(updatedApplication);
+      }
+
       setEditingApplication(null);
-      toast.success("Application updated.");
     } catch {
       toast.error("Could not save application.");
     } finally {
@@ -139,8 +144,8 @@ function ApplicationsPage() {
       setApplications(
         applications.filter((application) => application.id !== id),
       );
+      if (selectedApplication?.id === id) setSelectedApplication(null);
 
-      toast.success("Application deleted.");
     } catch {
       toast.error("Could not delete application.");
     }
@@ -180,17 +185,26 @@ function ApplicationsPage() {
 
   return (
     <MainLayout>
-      <section className="stats">
+      <header className="page-header">
         <div>
-          <strong>{totalApplications}</strong>
-          <span>Total</span>
+          <p className="page-kicker">Workspace</p>
+          <h1>Applications</h1>
+          <p>Review and update every active opportunity.</p>
         </div>
+        <button className="header-action" onClick={() => setIsCreateFormOpen(true)}>
+          Add application
+        </button>
+      </header>
 
+      <section className="stats" aria-label="Application summary">
+        <div className="stat-primary">
+          <strong>{totalApplications}</strong>
+          <span>Total applications</span>
+        </div>
         <div>
           <strong>{interviews}</strong>
           <span>Interviews</span>
         </div>
-
         <div>
           <strong>{offers}</strong>
           <span>Offers</span>
@@ -199,44 +213,41 @@ function ApplicationsPage() {
 
       <UpcomingReminders />
 
-      <section className="card filters-card">
-        <h2 className="section-title">Applications</h2>
+      <section className="workspace-section">
+        <div className="workspace-heading">
+          <div>
+            <h2>All applications</h2>
+            <p>{sortedApplications.length} of {applications.length} shown</p>
+          </div>
+          <SlidersHorizontal size={18} aria-hidden="true" />
+        </div>
 
-        <div className="filters">
-          <input
-            type="text"
-            placeholder="Search by company or position"
-            value={searchTerm}
-            onChange={(event) => setSearchTerm(event.target.value)}
-          />
+        <div className="filters" aria-label="Application controls">
+          <label className="search-control">
+            <span className="sr-only">Find in applications</span>
+            <Search size={17} aria-hidden="true" />
+            <input type="search" placeholder="Find company or position" value={searchTerm} onChange={(event) => setSearchTerm(event.target.value)} />
+          </label>
 
-          <select
-            value={filterStatus}
-            onChange={(event) => setFilterStatus(event.target.value)}
-          >
-            <option value="All">All statuses</option>
-            {APPLICATION_STATUSES.map((statusOption) => (
-              <option key={statusOption} value={statusOption}>
-                {statusOption}
-              </option>
-            ))}
-          </select>
+          <label className="select-control">
+            <span className="sr-only">Filter by status</span>
+            <select value={filterStatus} onChange={(event) => setFilterStatus(event.target.value)}>
+              <option value="All">All statuses</option>
+              {APPLICATION_STATUSES.map((statusOption) => <option key={statusOption} value={statusOption}>{statusOption}</option>)}
+            </select>
+          </label>
 
-          <select
-            value={sortBy}
-            onChange={(event) => setSortBy(event.target.value)}
-          >
-            <option value="recent">Most recent</option>
-            <option value="oldest">Oldest</option>
-            <option value="company">Company A-Z</option>
-            <option value="status">Status</option>
-          </select>
+          <label className="select-control">
+            <span className="sr-only">Sort applications</span>
+            <select value={sortBy} onChange={(event) => setSortBy(event.target.value)}>
+              <option value="recent">Newest first</option>
+              <option value="oldest">Oldest first</option>
+              <option value="company">Company A–Z</option>
+              <option value="status">Status</option>
+            </select>
+          </label>
         </div>
       </section>
-
-      <p className="results-count">
-        Showing {sortedApplications.length} of {applications.length} applications
-      </p>
 
       <ApplicationForm
         isOpen={isCreateFormOpen}
@@ -262,8 +273,15 @@ function ApplicationsPage() {
 
       <ApplicationList
         applications={sortedApplications}
-        handleEdit={handleEdit}
-        handleDelete={handleDelete}
+        selectedApplication={selectedApplication}
+        onSelect={setSelectedApplication}
+      />
+
+      <ApplicationDetailPanel
+        application={selectedApplication}
+        onClose={() => setSelectedApplication(null)}
+        onEdit={handleEdit}
+        onDelete={handleDelete}
       />
 
       {editingApplication && (
