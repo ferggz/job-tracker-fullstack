@@ -7,15 +7,18 @@ function AuthForm({ onLogin }) {
   const [password, setPassword] = useState("");
   const [isRegistering, setIsRegistering] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   async function handleSubmit(event) {
     event.preventDefault();
 
     const user = { email, password };
+    const registering = isRegistering;
 
+    setErrorMessage("");
     setIsSubmitting(true);
     try {
-      const data = isRegistering
+      const data = registering
         ? await registerUser(user)
         : await loginUser(user);
 
@@ -25,16 +28,25 @@ function AuthForm({ onLogin }) {
         return;
       }
 
-      if (isRegistering) {
+      if (registering) {
         setIsRegistering(false);
         toast.success("Account created successfully. Please log in.");
       }
-    } catch {
-      toast.error(
-        isRegistering
-          ? "Could not create account. Please try again."
-          : "Could not connect to the server. Please try again in a few seconds."
-      );
+    } catch (error) {
+      let message;
+
+      if (!registering && error.status === 401) {
+        message = "Incorrect email or password.";
+      } else if (registering && error.status >= 400 && error.status < 500) {
+        message = error.message === "Request failed"
+          ? "Could not create account. Please check your details."
+          : error.message;
+      } else {
+        message = "Could not connect to the server. Please try again.";
+      }
+
+      setErrorMessage(message);
+      toast.error(message);
     } finally {
       setIsSubmitting(false);
     }
@@ -55,6 +67,8 @@ function AuthForm({ onLogin }) {
 
         <label className="field"><span>Password</span><input type="password" value={password} onChange={(event) => setPassword(event.target.value)} autoComplete={isRegistering ? "new-password" : "current-password"} required aria-required="true" /></label>
 
+        {errorMessage && <p className="error-message" role="alert">{errorMessage}</p>}
+
         <button type="submit" disabled={isSubmitting}>
           {isSubmitting ? "Please wait…" : isRegistering ? "Create account" : "Sign in"}
         </button>
@@ -66,7 +80,11 @@ function AuthForm({ onLogin }) {
           <button
             type="button"
             className="auth-link"
-            onClick={() => setIsRegistering(!isRegistering)}
+            disabled={isSubmitting}
+            onClick={() => {
+              setIsRegistering(!isRegistering);
+              setErrorMessage("");
+            }}
           >
             {isRegistering ? "Sign in" : "Create account"}
           </button>
