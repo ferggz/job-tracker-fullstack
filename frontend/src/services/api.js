@@ -64,7 +64,12 @@ async function refreshAccessToken() {
 async function parseResponse(response) {
   if (!response.ok) {
     const error = await response.json().catch(() => null);
-    throw new Error(error?.detail || "Request failed");
+    const detail = typeof error?.detail === "string"
+      ? error.detail
+      : "Request failed";
+    const requestError = new Error(detail);
+    requestError.status = response.status;
+    throw requestError;
   }
 
   return response.json();
