@@ -23,20 +23,20 @@ function ApplicationForm({
   loading,
 }) {
   return (
-    <section className={`card application-form-card ${isOpen ? "is-open" : ""}`}>
+    <section className={`application-form-card ${isOpen ? "is-open" : ""}`}>
       <button
         type="button"
         className="form-card-header form-card-toggle"
         onClick={onToggle}
         aria-expanded={isOpen}
       >
-        {isOpen ? <Minus size={20} /> : <Plus size={20} />}
+        {isOpen ? <Minus size={18} /> : <Plus size={18} />}
         <h2>New application</h2>
       </button>
 
       <div className="application-form-collapse">
         <div className="application-form-collapse-inner">
-          <form className="application-form" onSubmit={handleSubmit}>
+          <form className="application-form" onSubmit={handleSubmit} aria-label="New application">
             <ApplicationFields
               company={company}
               setCompany={setCompany}

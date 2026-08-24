@@ -36,7 +36,6 @@ function RemindersPage() {
         ),
       );
 
-      toast.success("Reminder completed.");
     } catch {
       toast.error("Could not complete reminder.");
     }
@@ -47,7 +46,6 @@ function RemindersPage() {
       await deleteReminder(reminderId);
 
       setReminders(reminders.filter((reminder) => reminder.id !== reminderId));
-      toast.success("Reminder deleted.");
     } catch {
       toast.error("Could not delete reminder.");
     }
@@ -55,13 +53,15 @@ function RemindersPage() {
 
   return (
     <MainLayout>
-      <section>
-        <h2>Reminders</h2>
+      <section className="page-section">
+        <header className="page-header compact">
+          <div><p className="page-kicker">Follow-ups</p><h1>Reminders</h1><p>Keep time-sensitive application work visible.</p></div>
+        </header>
 
         {error && <p className="error-message">{error}</p>}
 
         {reminders.length === 0 ? (
-          <p>No reminders yet.</p>
+          <div className="empty-state"><h2>No reminders yet</h2><p>Add a reminder from an application’s detail panel.</p></div>
         ) : (
           <ul className="upcoming-list">
             {reminders.map((reminder) => (
@@ -72,7 +72,7 @@ function RemindersPage() {
                 }`}
               >
                 <strong>
-                  {isOverdue(reminder) ? "Overdue: " : ""}
+                    {isOverdue(reminder) ? "Overdue · " : ""}
                   {reminder.title}
                 </strong>
 

@@ -46,7 +46,6 @@ function ReminderList({ applicationId }) {
       setDueDate("");
       setNotes("");
 
-      toast.success("Reminder created.");
     } catch {
       toast.error("Could not create reminder.");
     }
@@ -64,7 +63,6 @@ function ReminderList({ applicationId }) {
         ),
       );
 
-      toast.success("Reminder completed.");
     } catch {
       toast.error("Could not complete reminder.");
     }
@@ -76,7 +74,6 @@ function ReminderList({ applicationId }) {
 
       setReminders(reminders.filter((reminder) => reminder.id !== reminderId));
 
-      toast.success("Reminder deleted.");
     } catch {
       toast.error("Could not delete reminder.");
     }
@@ -84,7 +81,10 @@ function ReminderList({ applicationId }) {
 
   return (
     <div className="reminders">
-      <h3>Reminders</h3>
+      <div className="detail-section-heading">
+        <h3>Reminders</h3>
+        <span>{reminders.length}</span>
+      </div>
 
       {reminders.length === 0 ? (
         <p>No reminders</p>
@@ -101,13 +101,11 @@ function ReminderList({ applicationId }) {
             >
               <div className="reminder-content">
                 <span className={reminder.completed ? "reminder-completed" : ""}>
-                  {reminder.completed
-                    ? "[Done]"
-                    : isOverdue(reminder)
-                      ? "[Overdue]"
-                      : "[Pending]"}{" "}
-                  {reminder.title} - {reminder.due_date}
+                  <span className={`reminder-state ${reminder.completed ? "is-done" : isOverdue(reminder) ? "is-overdue" : "is-pending"}`}>
+                    {reminder.completed ? "Done" : isOverdue(reminder) ? "Overdue" : "Pending"}
+                  </span>{" "}{reminder.title}
                 </span>
+                <small>{reminder.due_date}</small>
 
                 {reminder.notes && (
                   <small className="reminder-notes">{reminder.notes}</small>
@@ -146,27 +144,9 @@ function ReminderList({ applicationId }) {
       )}
 
       <form onSubmit={handleSubmit} className="reminder-form">
-        <input
-          type="text"
-          placeholder="Reminder title"
-          value={title}
-          onChange={(event) => setTitle(event.target.value)}
-          required
-        />
-
-        <input
-          type="date"
-          value={dueDate}
-          onChange={(event) => setDueDate(event.target.value)}
-          required
-        />
-
-        <input
-          type="text"
-          placeholder="Notes"
-          value={notes}
-          onChange={(event) => setNotes(event.target.value)}
-        />
+        <label className="field"><span>Reminder</span><input type="text" value={title} onChange={(event) => setTitle(event.target.value)} required aria-required="true" /></label>
+        <label className="field"><span>Due date</span><input type="date" value={dueDate} onChange={(event) => setDueDate(event.target.value)} required aria-required="true" /></label>
+        <label className="field"><span>Notes <small>Optional</small></span><input type="text" value={notes} onChange={(event) => setNotes(event.target.value)} /></label>
 
         <button type="submit">Add reminder</button>
       </form>

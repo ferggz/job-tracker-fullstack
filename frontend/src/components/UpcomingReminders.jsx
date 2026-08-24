@@ -27,8 +27,11 @@ function UpcomingReminders() {
   }
 
   return (
-    <section className="card upcoming-reminders">
-      <h2>Upcoming reminders</h2>
+    <section className="upcoming-reminders">
+      <div className="section-heading">
+        <div><p className="page-kicker">Needs attention</p><h2>Upcoming reminders</h2></div>
+        <span>{reminders.length}</span>
+      </div>
 
       <ul className="upcoming-list">
         {reminders.map((reminder) => (
@@ -41,13 +44,14 @@ function UpcomingReminders() {
             }`}
           >
             <strong>
-              {isOverdue(reminder, { requireIncomplete: false }) ? "🔴 " : ""}
               {reminder.title}
             </strong>
 
             <div>{reminder.company}</div>
 
-            <small>Due: {reminder.due_date}</small>
+            <small className={isOverdue(reminder, { requireIncomplete: false }) ? "overdue-label" : ""}>
+              {isOverdue(reminder, { requireIncomplete: false }) ? "Overdue · " : "Due · "}{reminder.due_date}
+            </small>
           </li>
         ))}
       </ul>

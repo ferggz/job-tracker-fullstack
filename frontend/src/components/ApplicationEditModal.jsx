@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { X } from "lucide-react";
 import ApplicationFields from "./ApplicationFields";
 
 function ApplicationEditModal({ application, loading, onClose, onSubmit }) {
@@ -9,6 +10,12 @@ function ApplicationEditModal({ application, loading, onClose, onSubmit }) {
   const [sourceUrl, setSourceUrl] = useState(application.source_url ?? "");
   const [dateApplied, setDateApplied] = useState(application.date_applied);
   const [notes, setNotes] = useState(application.notes ?? "");
+
+  useEffect(() => {
+    function handleKeyDown(event) { if (event.key === "Escape") onClose(); }
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [onClose]);
 
   function handleSubmit(event) {
     event.preventDefault();
@@ -33,7 +40,7 @@ function ApplicationEditModal({ application, loading, onClose, onSubmit }) {
         aria-modal="true"
         aria-labelledby="edit-application-title"
       >
-        <h2 id="edit-application-title">Edit application</h2>
+        <div className="modal-heading"><div><p className="page-kicker">Application</p><h2 id="edit-application-title">Edit application</h2></div><button className="icon-button" type="button" onClick={onClose} aria-label="Close edit form"><X size={19} /></button></div>
 
         <form className="application-form application-form-modal" onSubmit={handleSubmit}>
           <ApplicationFields

@@ -1,0 +1,10 @@
+[
+  {
+    "date": "2026-08-24",
+    "scope": "app",
+    "macrostructure": "Workbench",
+    "theme": "studied-DNA",
+    "enrichment": "none",
+    "brief": "Job Tracker frontend redesign with compact application rows and progressive detail"
+  }
+]
